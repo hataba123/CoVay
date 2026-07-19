@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EasyGoBot } from '@/bots/EasyGoBot'
+import { HardGoBot } from '@/bots/HardGoBot'
 import { MediumGoBot } from '@/bots/MediumGoBot'
 import { createGameState, getLegalMoves, tryPlayMove } from '@/domain/engine/goGameEngine'
 
@@ -22,5 +23,17 @@ describe('Go bots', () => {
     const move = await new MediumGoBot().findBestMove(state)
     expect(move).toEqual({ row: 4, column: 5 })
     expect(tryPlayMove(state, move!).error).toBeNull()
+  })
+
+  it('hard bot returns a legal move without mutating game state', async () => {
+    const state = createGameState()
+    state.board[4][4] = 'black'
+    const originalBoard = state.board.map((row) => [...row])
+
+    const move = await new HardGoBot().findBestMove(state)
+
+    expect(move).not.toBeNull()
+    expect(getLegalMoves(state)).toContainEqual(move)
+    expect(state.board).toEqual(originalBoard)
   })
 })
