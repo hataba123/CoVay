@@ -98,6 +98,7 @@ function selectPosition(row: number, column: number): void {
             :cx="columnIndex"
             :cy="rowIndex"
             r="0.39"
+            @click="selectPosition(rowIndex, columnIndex)"
           />
         </g>
       </g>

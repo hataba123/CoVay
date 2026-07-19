@@ -54,18 +54,24 @@ export const useGameStore = defineStore('game', {
       this.message = message
     },
     play(position: BoardPosition) {
-      const activePlayer =
-        this.game?.settings[this.game.currentPlayer === 'black' ? 'blackPlayer' : 'whitePlayer']
-      if (activePlayer?.type === 'bot') {
+      if (!this.canHumanAct()) {
         this.message = 'Đang đến lượt của bot.'
         return
       }
       this.applyResult(this.game ? tryPlayMove(this.game, position) : null)
     },
     pass() {
+      if (!this.canHumanAct()) {
+        this.message = 'Đang đến lượt của bot.'
+        return
+      }
       this.applyResult(this.game ? passTurn(this.game) : null)
     },
     resign() {
+      if (!this.canHumanAct()) {
+        this.message = 'Đang đến lượt của bot.'
+        return
+      }
       this.applyResult(this.game ? resignGame(this.game) : null)
     },
     undo() {
@@ -79,6 +85,12 @@ export const useGameStore = defineStore('game', {
     },
     clearMessage() {
       this.message = null
+    },
+    canHumanAct(): boolean {
+      if (!this.game || this.game.status !== 'playing' || this.isBotThinking) return false
+      const activePlayer =
+        this.game.settings[this.game.currentPlayer === 'black' ? 'blackPlayer' : 'whitePlayer']
+      return activePlayer.type === 'human'
     },
     async makeBotMove() {
       const game = this.game
