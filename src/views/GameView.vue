@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import GameControls from '@/components/game/GameControls.vue'
 import GameInformation from '@/components/game/GameInformation.vue'
+import KataGoAnalysisPanel from '@/components/game/KataGoAnalysisPanel.vue'
 import GameResultDialog from '@/components/game/GameResultDialog.vue'
 import GoBoard from '@/components/game/GoBoard.vue'
 import MoveHistory from '@/components/game/MoveHistory.vue'
@@ -86,6 +87,7 @@ async function loadSgf(event: Event): Promise<void> {
         <GoBoard
           :board="game.board"
           :dead-stones="game.manualDeadStones"
+          :ownership="gameStore.kataGoAnalysis?.ownership"
           :last-move="lastMove"
           :scoring-mode="game.status === 'scoring'"
           :disabled="
@@ -98,6 +100,7 @@ async function loadSgf(event: Event): Promise<void> {
         /><GameControls
           :game="game"
           :interaction-disabled="gameStore.isBotThinking || isBotTurn"
+          :kata-go-analyzing="gameStore.isKataGoAnalyzing"
           @pass="gameStore.pass"
           @resign="requestResign"
           @undo="gameStore.undo"
@@ -106,9 +109,13 @@ async function loadSgf(event: Event): Promise<void> {
           @export-sgf="downloadSgf"
           @import-sgf="selectSgf"
           @restart="restart"
+          @analyze-katago="gameStore.analyzeWithKataGo"
         />
       </div>
-      <MoveHistory :moves="game.moveHistory" />
+      <aside class="game-sidebar">
+        <MoveHistory :moves="game.moveHistory" />
+        <KataGoAnalysisPanel v-if="gameStore.kataGoAnalysis" :analysis="gameStore.kataGoAnalysis" />
+      </aside>
     </div>
     <div v-if="pendingResign" class="modal-backdrop" role="presentation">
       <section class="confirmation" aria-modal="true" role="dialog" aria-labelledby="resign-title">
@@ -147,6 +154,10 @@ async function loadSgf(event: Event): Promise<void> {
   grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
 }
 .board-area {
+  display: grid;
+  gap: 1rem;
+}
+.game-sidebar {
   display: grid;
   gap: 1rem;
 }

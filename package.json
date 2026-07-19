@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "katago": "node server/katago-proxy.mjs",
+    "setup:katago": "node scripts/setup-katago.mjs",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",

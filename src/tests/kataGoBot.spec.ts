@@ -38,4 +38,47 @@ describe('KataGoBot', () => {
       'nằm ngoài bàn cờ',
     )
   })
+
+  it('returns score, ownership and principal variations for the analysis panel', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        rootInfo: { winrate: 0.63, scoreLead: 4.5, visits: 300 },
+        ownership: Array.from({ length: 81 }, () => 0.5),
+        moveInfos: [
+          {
+            move: 'D4',
+            order: 0,
+            winrate: 0.65,
+            scoreLead: 5,
+            visits: 150,
+            pv: ['Q16', 'C3'],
+          },
+        ],
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const analysis = await new KataGoBot().analyze(createGameState({ boardSize: 9 }))
+
+    expect(analysis).toMatchObject({
+      rootWinrate: 0.63,
+      rootScoreLead: 4.5,
+      rootVisits: 300,
+      ownership: Array.from({ length: 81 }, () => 0.5),
+      variations: [
+        {
+          moveLabel: 'D4',
+          principalVariation: ['Q16', 'C3'],
+          winrate: 0.65,
+          scoreLead: 5,
+          visits: 150,
+        },
+      ],
+    })
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      includeOwnership: true,
+      analysisPVLen: 12,
+    })
+  })
 })

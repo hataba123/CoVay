@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GameState } from '@/domain/models/game'
 
-defineProps<{ game: GameState; interactionDisabled?: boolean }>()
+defineProps<{ game: GameState; interactionDisabled?: boolean; kataGoAnalyzing?: boolean }>()
 const emit = defineEmits<{
   pass: []
   resign: []
@@ -11,6 +11,7 @@ const emit = defineEmits<{
   exportSgf: []
   importSgf: []
   restart: []
+  analyzeKatago: []
 }>()
 </script>
 
@@ -46,6 +47,13 @@ const emit = defineEmits<{
       @click="emit('redo')"
     >
       Làm lại
+    </button>
+    <button
+      type="button"
+      :disabled="game.status !== 'playing' || interactionDisabled || kataGoAnalyzing"
+      @click="emit('analyzeKatago')"
+    >
+      {{ kataGoAnalyzing ? 'KataGo đang phân tích…' : 'Phân tích KataGo' }}
     </button>
     <button
       v-if="game.status === 'scoring'"

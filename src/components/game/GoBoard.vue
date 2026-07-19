@@ -6,6 +6,7 @@ const props = defineProps<{
   board: Board
   lastMove: BoardPosition | null
   deadStones?: BoardPosition[]
+  ownership?: number[]
   scoringMode?: boolean
   disabled?: boolean
 }>()
@@ -28,6 +29,14 @@ const starPoints = computed(() => {
 const deadStoneKeys = computed(
   () => new Set((props.deadStones ?? []).map((position) => `${position.row}:${position.column}`)),
 )
+const ownershipPoints = computed(() => {
+  if (props.ownership?.length !== boardSize.value * boardSize.value) return []
+  return props.ownership.map((value, index) => ({
+    column: index % boardSize.value,
+    row: Math.floor(index / boardSize.value),
+    value,
+  }))
+})
 
 function isLastMove(row: number, column: number): boolean {
   return props.lastMove?.row === row && props.lastMove.column === column
@@ -82,6 +91,16 @@ function selectPosition(row: number, column: number): void {
         :cx="point.column"
         :cy="point.row"
         r="0.09"
+      />
+      <circle
+        v-for="point in ownershipPoints"
+        :key="`ownership-${point.row}-${point.column}`"
+        class="ownership"
+        :class="point.value >= 0 ? 'black-ownership' : 'white-ownership'"
+        :cx="point.column"
+        :cy="point.row"
+        :fill-opacity="Math.abs(point.value) * 0.58"
+        r="0.34"
       />
       <g v-for="(row, rowIndex) in board" :key="rowIndex" role="row">
         <g
@@ -159,6 +178,17 @@ rect {
 }
 .star {
   fill: #3e2710;
+}
+.ownership {
+  pointer-events: none;
+}
+.ownership.black-ownership {
+  fill: #0f172a;
+}
+.ownership.white-ownership {
+  fill: #f8fafc;
+  stroke: #2563eb;
+  stroke-width: 0.025;
 }
 .intersection {
   outline: none;

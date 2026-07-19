@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { createGoBot } from '@/bots/botFactory'
+import { KataGoBot, type KataGoAnalysis } from '@/bots/KataGoBot'
 import { saveGame, type StoredGame } from '@/services/gameStorageService'
 import {
   confirmScore,
@@ -17,6 +18,8 @@ interface GameStoreState {
   game: GameState | null
   message: string | null
   isBotThinking: boolean
+  isKataGoAnalyzing: boolean
+  kataGoAnalysis: KataGoAnalysis | null
   activeGameId: string | null
   createdAt: string | null
 }
@@ -26,6 +29,8 @@ export const useGameStore = defineStore('game', {
     game: null,
     message: null,
     isBotThinking: false,
+    isKataGoAnalyzing: false,
+    kataGoAnalysis: null,
     activeGameId: null,
     createdAt: null,
   }),
@@ -34,6 +39,8 @@ export const useGameStore = defineStore('game', {
       this.game = createGameState(settings)
       this.message = null
       this.isBotThinking = false
+      this.isKataGoAnalyzing = false
+      this.kataGoAnalysis = null
       this.activeGameId = crypto.randomUUID()
       this.createdAt = new Date().toISOString()
       void this.persistCurrentGame()
@@ -43,12 +50,14 @@ export const useGameStore = defineStore('game', {
       this.activeGameId = game.id
       this.createdAt = game.createdAt
       this.message = null
+      this.kataGoAnalysis = null
     },
     loadImportedGame(game: GameState) {
       this.game = game
       this.activeGameId = crypto.randomUUID()
       this.createdAt = new Date().toISOString()
       this.message = null
+      this.kataGoAnalysis = null
       void this.persistCurrentGame()
     },
     setMessage(message: string | null) {
@@ -90,6 +99,24 @@ export const useGameStore = defineStore('game', {
     clearMessage() {
       this.message = null
     },
+    async analyzeWithKataGo() {
+      const game = this.game
+      if (!game || game.status !== 'playing' || this.isKataGoAnalyzing) return
+
+      this.isKataGoAnalyzing = true
+      this.message = 'KataGo đang phân tích…'
+      try {
+        const analysis = await new KataGoBot().analyze(game)
+        if (this.game !== game) return
+        this.kataGoAnalysis = analysis
+      } catch (error) {
+        this.message =
+          error instanceof Error ? error.message : 'KataGo không thể phân tích vị trí này.'
+      } finally {
+        this.isKataGoAnalyzing = false
+        if (this.message === 'KataGo đang phân tích…') this.message = null
+      }
+    },
     canHumanAct(): boolean {
       if (!this.game || this.game.status !== 'playing' || this.isBotThinking) return false
       const activePlayer =
@@ -105,7 +132,8 @@ export const useGameStore = defineStore('game', {
       this.message = 'Bot đang suy nghĩ…'
       try {
         await new Promise<void>((resolve) => window.setTimeout(resolve, 120))
-        const position = await createGoBot(game.settings.botDifficulty).findBestMove(game)
+        const bot = createGoBot(game.settings.botDifficulty)
+        const position = await bot.findBestMove(game)
         if (this.game !== game) return
         this.applyResult(position ? tryPlayMove(game, position) : passTurn(game))
       } catch (error) {
@@ -124,6 +152,7 @@ export const useGameStore = defineStore('game', {
         return
       }
       this.game = result.state
+      if (!result.error) this.kataGoAnalysis = null
       this.message = result.error
       if (!result.error) void this.persistCurrentGame()
     },
