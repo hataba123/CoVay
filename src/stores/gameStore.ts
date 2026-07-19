@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { createGoBot } from '@/bots/botFactory'
+import { saveGame, type StoredGame } from '@/services/gameStorageService'
 import {
   confirmScore,
   createGameState,
@@ -15,15 +16,32 @@ interface GameStoreState {
   game: GameState | null
   message: string | null
   isBotThinking: boolean
+  activeGameId: string | null
+  createdAt: string | null
 }
 
 export const useGameStore = defineStore('game', {
-  state: (): GameStoreState => ({ game: null, message: null, isBotThinking: false }),
+  state: (): GameStoreState => ({
+    game: null,
+    message: null,
+    isBotThinking: false,
+    activeGameId: null,
+    createdAt: null,
+  }),
   actions: {
     startGame(settings: GameSettings) {
       this.game = createGameState(settings)
       this.message = null
       this.isBotThinking = false
+      this.activeGameId = crypto.randomUUID()
+      this.createdAt = new Date().toISOString()
+      void this.persistCurrentGame()
+    },
+    restoreGame(game: StoredGame) {
+      this.game = game.state
+      this.activeGameId = game.id
+      this.createdAt = game.createdAt
+      this.message = null
     },
     play(position: BoardPosition) {
       const activePlayer =
@@ -78,6 +96,20 @@ export const useGameStore = defineStore('game', {
       }
       this.game = result.state
       this.message = result.error
+      if (!result.error) void this.persistCurrentGame()
+    },
+    async persistCurrentGame() {
+      if (!this.game || !this.activeGameId || !this.createdAt) return
+      try {
+        await saveGame({
+          id: this.activeGameId,
+          createdAt: this.createdAt,
+          updatedAt: new Date().toISOString(),
+          state: this.game,
+        })
+      } catch {
+        this.message = 'Không thể tự động lưu ván cờ trên thiết bị này.'
+      }
     },
   },
 })
