@@ -16,6 +16,9 @@ const emit = defineEmits<{
 
 <template>
   <div class="controls" aria-label="Điều khiển ván cờ">
+    <p v-if="game.status === 'scoring'" class="scoring-help">
+      Nhấp vào một nhóm quân để đánh dấu hoặc bỏ đánh dấu quân chết.
+    </p>
     <button
       type="button"
       :disabled="game.status !== 'playing' || interactionDisabled"
@@ -63,6 +66,11 @@ const emit = defineEmits<{
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+.scoring-help {
+  color: #475569;
+  flex-basis: 100%;
+  margin: 0;
 }
 button {
   background: #fff;

@@ -6,6 +6,7 @@ import {
   getConnectedGroup,
   passTurn,
   redoMove,
+  toggleDeadGroup,
   tryPlayMove,
   undoMove,
 } from '@/domain/engine/goGameEngine'
@@ -130,5 +131,35 @@ describe('goGameEngine', () => {
     expect(score.komi).toBe(6.5)
     expect(score.black).toBe(81)
     expect(score.white).toBe(6.5)
+  })
+
+  it('removes manually marked dead groups before area scoring', () => {
+    const state = createGameState({ boardSize: 9 })
+    state.board[0][0] = 'black'
+    state.board[0][1] = 'black'
+    state.status = 'scoring'
+
+    const marked = toggleDeadGroup(state, { row: 0, column: 0 })
+    expect(marked.error).toBeNull()
+    expect(marked.state.manualDeadStones).toEqual([
+      { row: 0, column: 0 },
+      { row: 0, column: 1 },
+    ])
+
+    const score = calculateAreaScore(state.board, 6.5, marked.state.manualDeadStones)
+    expect(score.blackStones).toBe(0)
+    expect(score.white).toBe(6.5)
+  })
+
+  it('unmarks an already marked dead group', () => {
+    const state = createGameState()
+    state.board[4][4] = 'white'
+    state.status = 'scoring'
+
+    const marked = toggleDeadGroup(state, { row: 4, column: 4 }).state
+    const unmarked = toggleDeadGroup(marked, { row: 4, column: 4 })
+
+    expect(unmarked.error).toBeNull()
+    expect(unmarked.state.manualDeadStones).toEqual([])
   })
 })

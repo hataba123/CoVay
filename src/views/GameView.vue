@@ -85,9 +85,16 @@ async function loadSgf(event: Event): Promise<void> {
       <div class="board-area">
         <GoBoard
           :board="game.board"
+          :dead-stones="game.manualDeadStones"
           :last-move="lastMove"
-          :disabled="game.status !== 'playing' || gameStore.isBotThinking || isBotTurn"
+          :scoring-mode="game.status === 'scoring'"
+          :disabled="
+            (game.status !== 'playing' && game.status !== 'scoring') ||
+            gameStore.isBotThinking ||
+            isBotTurn
+          "
           @play="play"
+          @toggle-dead-group="gameStore.toggleDeadGroup"
         /><GameControls
           :game="game"
           :interaction-disabled="gameStore.isBotThinking || isBotTurn"

@@ -61,6 +61,7 @@ export interface GameStateSnapshot {
   moveHistory: GoMove[]
   previousBoardHash: string | null
   positionHistory: string[]
+  manualDeadStones: BoardPosition[]
   status: GameStatus
   result: GameResult | null
 }

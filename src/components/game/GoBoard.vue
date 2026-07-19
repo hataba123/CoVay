@@ -5,10 +5,15 @@ import type { Board, BoardPosition } from '@/domain/models/game'
 const props = defineProps<{
   board: Board
   lastMove: BoardPosition | null
+  deadStones?: BoardPosition[]
+  scoringMode?: boolean
   disabled?: boolean
 }>()
 
-const emit = defineEmits<{ play: [position: BoardPosition] }>()
+const emit = defineEmits<{
+  play: [position: BoardPosition]
+  toggleDeadGroup: [position: BoardPosition]
+}>()
 
 const boardSize = computed(() => props.board.length)
 const starPoints = computed(() => {
@@ -20,13 +25,26 @@ const starPoints = computed(() => {
       : [offset, middle, boardSize.value - offset - 1]
   return positions.flatMap((row) => positions.map((column) => ({ row, column })))
 })
+const deadStoneKeys = computed(
+  () => new Set((props.deadStones ?? []).map((position) => `${position.row}:${position.column}`)),
+)
 
 function isLastMove(row: number, column: number): boolean {
   return props.lastMove?.row === row && props.lastMove.column === column
 }
 
+function isDeadStone(row: number, column: number): boolean {
+  return deadStoneKeys.value.has(`${row}:${column}`)
+}
+
 function selectPosition(row: number, column: number): void {
-  if (!props.disabled && props.board[row][column] === null) emit('play', { row, column })
+  if (props.disabled) return
+  const position = { row, column }
+  if (props.scoringMode && props.board[row][column] !== null) {
+    emit('toggleDeadGroup', position)
+  } else if (!props.scoringMode && props.board[row][column] === null) {
+    emit('play', position)
+  }
 }
 </script>
 
@@ -70,10 +88,15 @@ function selectPosition(row: number, column: number): void {
           v-for="(stone, columnIndex) in row"
           :key="`${rowIndex}-${columnIndex}`"
           class="intersection"
-          :class="{ selectable: stone === null && !disabled }"
+          :class="{
+            selectable:
+              (stone === null && !scoringMode && !disabled) || (stone && scoringMode && !disabled),
+          }"
           role="gridcell"
-          :aria-label="`Hàng ${rowIndex + 1}, cột ${columnIndex + 1}${stone ? `, quân ${stone === 'black' ? 'đen' : 'trắng'}` : ''}`"
-          :tabindex="stone === null && !disabled ? 0 : -1"
+          :aria-label="`Hàng ${rowIndex + 1}, cột ${columnIndex + 1}${stone ? `, quân ${stone === 'black' ? 'đen' : 'trắng'}${isDeadStone(rowIndex, columnIndex) ? ', đã đánh dấu chết' : ''}` : ''}`"
+          :tabindex="
+            ((stone === null && !scoringMode) || (stone && scoringMode)) && !disabled ? 0 : -1
+          "
           @click="selectPosition(rowIndex, columnIndex)"
           @keydown.enter.prevent="selectPosition(rowIndex, columnIndex)"
           @keydown.space.prevent="selectPosition(rowIndex, columnIndex)"
@@ -84,6 +107,13 @@ function selectPosition(row: number, column: number): void {
             :cx="columnIndex"
             :cy="rowIndex"
             r="0.43"
+          />
+          <circle
+            v-if="stone && isDeadStone(rowIndex, columnIndex)"
+            class="dead-stone"
+            :cx="columnIndex"
+            :cy="rowIndex"
+            r="0.28"
           />
           <circle
             v-if="isLastMove(rowIndex, columnIndex)"
@@ -154,6 +184,12 @@ rect {
   fill: #f8fafc;
   stroke: #cbd5e1;
   stroke-width: 0.035;
+}
+.dead-stone {
+  fill: none;
+  pointer-events: none;
+  stroke: #ef4444;
+  stroke-width: 0.08;
 }
 .last-move {
   fill: #ef4444;

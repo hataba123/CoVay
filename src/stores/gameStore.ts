@@ -7,6 +7,7 @@ import {
   passTurn,
   redoMove,
   resignGame,
+  toggleDeadGroup,
   tryPlayMove,
   undoMove,
 } from '@/domain/engine/goGameEngine'
@@ -82,6 +83,9 @@ export const useGameStore = defineStore('game', {
     },
     confirmScore() {
       this.applyResult(this.game ? confirmScore(this.game) : null)
+    },
+    toggleDeadGroup(position: BoardPosition) {
+      this.applyResult(this.game ? toggleDeadGroup(this.game, position) : null)
     },
     clearMessage() {
       this.message = null

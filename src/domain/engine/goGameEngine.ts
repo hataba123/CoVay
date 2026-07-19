@@ -51,6 +51,9 @@ function cloneSnapshot(snapshot: GameStateSnapshot): GameStateSnapshot {
     positionHistory: Array.isArray(snapshot.positionHistory)
       ? [...snapshot.positionHistory]
       : [boardHash(snapshot.board)],
+    manualDeadStones: Array.isArray(snapshot.manualDeadStones)
+      ? snapshot.manualDeadStones.map(clonePosition)
+      : [],
     status: snapshot.status,
     result: snapshot.result
       ? {
@@ -100,6 +103,7 @@ export function createGameState(settings: Partial<GameSettings> = {}): GameState
     moveHistory: [],
     previousBoardHash: null,
     positionHistory: [boardHash(board)],
+    manualDeadStones: [],
     status: 'playing',
     result: null,
     pastStates: [],
@@ -180,6 +184,10 @@ function getPositionHistory(state: GameState): string[] {
 
   // Ván lưu trước khi bổ sung superko không có lịch sử thế cờ đầy đủ.
   return [boardHash(state.board)]
+}
+
+function getManualDeadStones(state: GameState): BoardPosition[] {
+  return Array.isArray(state.manualDeadStones) ? state.manualDeadStones : []
 }
 
 function removeGroup(board: Board, group: BoardPosition[]): void {
@@ -272,6 +280,7 @@ export function tryPlayMove(state: GameState, position: BoardPosition): MoveResu
       moveHistory: appendMove(state, 'play', position, capturedStones),
       previousBoardHash: boardHash(state.board),
       positionHistory: [...getPositionHistory(state), nextBoardHash],
+      manualDeadStones: [],
       status: 'playing',
       result: null,
     }),
@@ -294,6 +303,7 @@ export function passTurn(state: GameState): MoveResult {
       moveHistory: appendMove(state, 'pass', null, 0),
       previousBoardHash: boardHash(state.board),
       positionHistory: [...getPositionHistory(state)],
+      manualDeadStones: [],
       status: consecutivePasses >= 2 ? 'scoring' : 'playing',
       result: null,
     }),
@@ -316,6 +326,7 @@ export function resignGame(state: GameState): MoveResult {
       moveHistory: appendMove(state, 'resign', null, 0),
       previousBoardHash: state.previousBoardHash,
       positionHistory: [...getPositionHistory(state)],
+      manualDeadStones: getManualDeadStones(state).map(clonePosition),
       status: 'finished',
       result,
     }),
@@ -323,7 +334,15 @@ export function resignGame(state: GameState): MoveResult {
   }
 }
 
-export function calculateAreaScore(board: Board, komi: number): GameScore {
+export function calculateAreaScore(
+  originalBoard: Board,
+  komi: number,
+  manualDeadStones: BoardPosition[] = [],
+): GameScore {
+  const board = cloneBoard(originalBoard)
+  for (const position of manualDeadStones) {
+    if (isOnBoard(board, position)) board[position.row][position.column] = null
+  }
   let blackStones = 0
   let whiteStones = 0
   let blackTerritory = 0
@@ -378,11 +397,35 @@ export function calculateAreaScore(board: Board, komi: number): GameScore {
   }
 }
 
+export function toggleDeadGroup(state: GameState, position: BoardPosition): MoveResult {
+  if (state.status !== 'scoring') {
+    return { state, error: 'Chỉ có thể đánh dấu quân chết khi tính điểm.' }
+  }
+  if (!isOnBoard(state.board, position) || state.board[position.row][position.column] === null) {
+    return { state, error: 'Hãy chọn một quân trên bàn cờ.' }
+  }
+
+  const group = getConnectedGroup(state.board, position)
+  const selectedKeys = new Set(getManualDeadStones(state).map(positionKey))
+  const groupIsSelected = group.every((stone) => selectedKeys.has(positionKey(stone)))
+  if (groupIsSelected) {
+    group.forEach((stone) => selectedKeys.delete(positionKey(stone)))
+  } else {
+    group.forEach((stone) => selectedKeys.add(positionKey(stone)))
+  }
+
+  const manualDeadStones = [...selectedKeys].map((key) => {
+    const [row, column] = key.split(':').map(Number)
+    return { row, column }
+  })
+  return { state: { ...state, manualDeadStones }, error: null }
+}
+
 export function confirmScore(state: GameState): MoveResult {
   if (state.status !== 'scoring') {
     return { state, error: 'Chưa thể xác nhận điểm số.' }
   }
-  const score = calculateAreaScore(state.board, state.settings.komi)
+  const score = calculateAreaScore(state.board, state.settings.komi, getManualDeadStones(state))
   const result: GameResult = {
     winner: score.black === score.white ? 'draw' : score.black > score.white ? 'black' : 'white',
     reason: 'score',
