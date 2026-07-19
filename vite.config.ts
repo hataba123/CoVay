@@ -29,6 +29,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    proxy: {
+      '/api/katago': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     include: ['src/tests/**/*.spec.ts'],

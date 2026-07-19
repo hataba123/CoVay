@@ -24,6 +24,16 @@ npm run test
 npm run build
 ```
 
+## KataGo
+
+Chọn **KataGo** trong mục độ khó bot để dùng engine KataGo thay cho bot chạy trong trình duyệt. KataGo chạy ở tiến trình riêng; mã nguồn không kèm binary hoặc model của engine.
+
+1. Tải KataGo và model từ [KataGo Releases](https://github.com/lightvector/KataGo/releases).
+2. Thiết lập biến môi trường `KATAGO_EXECUTABLE`, `KATAGO_MODEL_PATH` và `KATAGO_CONFIG_PATH` (hai biến đường dẫn model/config có thể bỏ qua nếu bạn dùng file mặc định của KataGo).
+3. Mở hai terminal: `npm run katago` để chạy bridge tại cổng 3001, rồi `npm run dev` để chạy ứng dụng.
+
+Vite sẽ chuyển tiếp `/api/katago` đến bridge khi phát triển. Khi triển khai production, reverse proxy `/api/katago` về bridge hoặc đặt `VITE_KATAGO_API_URL` thành URL đầy đủ của bridge trước khi build. Bridge chuyển trực tiếp JSON Analysis Engine của KataGo và đặt giới hạn 300 visits cho mỗi nước đi.
+
 ## Kiến trúc
 
 ```text

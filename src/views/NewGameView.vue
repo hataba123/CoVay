@@ -22,18 +22,19 @@ const komi = ref(6.5)
 
 function startGame(): void {
   const isBotGame = mode.value === 'bot'
+  const botName = botDifficulty.value === 'katago' ? 'KataGo' : 'Bot'
   const settings: GameSettings = {
     boardSize: boardSize.value,
     komi: komi.value,
     mode: mode.value,
     botDifficulty: isBotGame ? botDifficulty.value : undefined,
     blackPlayer: {
-      name: isBotGame && humanColor.value === 'white' ? 'Bot' : blackName.value.trim() || 'Đen',
+      name: isBotGame && humanColor.value === 'white' ? botName : blackName.value.trim() || 'Đen',
       color: 'black',
       type: isBotGame && humanColor.value === 'white' ? 'bot' : 'human',
     },
     whitePlayer: {
-      name: isBotGame && humanColor.value === 'black' ? 'Bot' : whiteName.value.trim() || 'Trắng',
+      name: isBotGame && humanColor.value === 'black' ? botName : whiteName.value.trim() || 'Trắng',
       color: 'white',
       type: isBotGame && humanColor.value === 'black' ? 'bot' : 'human',
     },
@@ -76,6 +77,7 @@ function startGame(): void {
             <option value="easy">Dễ</option>
             <option value="medium">Trung bình</option>
             <option value="hard">Khó</option>
+            <option value="katago">KataGo</option>
           </select></label
         ></template
       >

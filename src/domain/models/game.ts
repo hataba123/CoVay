@@ -6,7 +6,7 @@ export type BoardIntersection = StoneColor | null
 export type Board = BoardIntersection[][]
 export type GameMode = 'local' | 'bot'
 export type PlayerType = 'human' | 'bot'
-export type BotDifficulty = 'easy' | 'medium' | 'hard'
+export type BotDifficulty = 'easy' | 'medium' | 'hard' | 'katago'
 export type GameStatus = 'playing' | 'scoring' | 'finished'
 
 export interface BoardPosition {

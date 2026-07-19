@@ -19,6 +19,17 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
   {
+    files: ['server/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        clearTimeout: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+  },
+  {
     files: ['**/*.vue'],
     languageOptions: {
       parserOptions: {

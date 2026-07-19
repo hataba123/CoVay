@@ -108,8 +108,11 @@ export const useGameStore = defineStore('game', {
         const position = await createGoBot(game.settings.botDifficulty).findBestMove(game)
         if (this.game !== game) return
         this.applyResult(position ? tryPlayMove(game, position) : passTurn(game))
-      } catch {
-        this.message = 'Bot không thể thực hiện nước đi. Bạn có thể tiếp tục ván cờ.'
+      } catch (error) {
+        this.message =
+          error instanceof Error
+            ? error.message
+            : 'Bot không thể thực hiện nước đi. Bạn có thể tiếp tục ván cờ.'
       } finally {
         this.isBotThinking = false
         if (this.message === 'Bot đang suy nghĩ…') this.message = null
