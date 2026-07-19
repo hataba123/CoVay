@@ -1,23 +1,42 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import type { BoardSize, GameSettings } from '@/domain/models/game'
+import type {
+  BoardSize,
+  BotDifficulty,
+  GameMode,
+  GameSettings,
+  StoneColor,
+} from '@/domain/models/game'
 import { useGameStore } from '@/stores/gameStore'
 
 const router = useRouter()
 const gameStore = useGameStore()
 const boardSize = ref<BoardSize>(9)
+const mode = ref<GameMode>('local')
+const humanColor = ref<StoneColor>('black')
+const botDifficulty = ref<BotDifficulty>('medium')
 const blackName = ref('Đen')
 const whiteName = ref('Trắng')
 const komi = ref(6.5)
 
 function startGame(): void {
+  const isBotGame = mode.value === 'bot'
   const settings: GameSettings = {
     boardSize: boardSize.value,
     komi: komi.value,
-    mode: 'local',
-    blackPlayer: { name: blackName.value.trim() || 'Đen', color: 'black', type: 'human' },
-    whitePlayer: { name: whiteName.value.trim() || 'Trắng', color: 'white', type: 'human' },
+    mode: mode.value,
+    botDifficulty: isBotGame ? botDifficulty.value : undefined,
+    blackPlayer: {
+      name: isBotGame && humanColor.value === 'white' ? 'Bot' : blackName.value.trim() || 'Đen',
+      color: 'black',
+      type: isBotGame && humanColor.value === 'white' ? 'bot' : 'human',
+    },
+    whitePlayer: {
+      name: isBotGame && humanColor.value === 'black' ? 'Bot' : whiteName.value.trim() || 'Trắng',
+      color: 'white',
+      type: isBotGame && humanColor.value === 'black' ? 'bot' : 'human',
+    },
   }
   gameStore.startGame(settings)
   void router.push('/game')
@@ -26,19 +45,42 @@ function startGame(): void {
 
 <template>
   <section class="new-game">
-    <p class="eyebrow">Chơi cùng nhau</p>
-    <h1>Tạo ván cờ địa phương</h1>
+    <p class="eyebrow">Thiết lập ván đấu</p>
+    <h1>Tạo ván cờ mới</h1>
     <form @submit.prevent="startGame">
+      <label
+        >Chế độ chơi<select v-model="mode">
+          <option value="local">Hai người chơi</option>
+          <option value="bot">Chơi với bot</option>
+        </select></label
+      >
       <label
         >Kích thước bàn cờ<select v-model="boardSize">
           <option :value="9">9 × 9</option>
           <option :value="13">13 × 13</option>
           <option :value="19">19 × 19</option>
         </select></label
-      ><label>Tên người chơi Đen<input v-model="blackName" maxlength="30" /></label
-      ><label>Tên người chơi Trắng<input v-model="whiteName" maxlength="30" /></label
-      ><label>Komi<input v-model.number="komi" min="0" max="20" step="0.5" type="number" /></label
-      ><button type="submit">Bắt đầu ván cờ</button>
+      >
+      <template v-if="mode === 'local'"
+        ><label>Tên người chơi Đen<input v-model="blackName" maxlength="30" /></label
+        ><label>Tên người chơi Trắng<input v-model="whiteName" maxlength="30" /></label
+      ></template>
+      <template v-else
+        ><label
+          >Bạn cầm quân<select v-model="humanColor">
+            <option value="black">Đen</option>
+            <option value="white">Trắng</option>
+          </select></label
+        ><label
+          >Độ khó bot<select v-model="botDifficulty">
+            <option value="easy">Dễ</option>
+            <option value="medium">Trung bình</option>
+            <option value="hard">Khó</option>
+          </select></label
+        ></template
+      >
+      <label>Komi<input v-model.number="komi" min="0" max="20" step="0.5" type="number" /></label>
+      <button type="submit">Bắt đầu ván cờ</button>
     </form>
   </section>
 </template>

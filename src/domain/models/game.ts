@@ -6,6 +6,7 @@ export type BoardIntersection = StoneColor | null
 export type Board = BoardIntersection[][]
 export type GameMode = 'local' | 'bot'
 export type PlayerType = 'human' | 'bot'
+export type BotDifficulty = 'easy' | 'medium' | 'hard'
 export type GameStatus = 'playing' | 'scoring' | 'finished'
 
 export interface BoardPosition {
@@ -25,6 +26,7 @@ export interface GameSettings {
   mode: GameMode
   blackPlayer: Player
   whitePlayer: Player
+  botDifficulty?: BotDifficulty
 }
 
 export interface GoMove {

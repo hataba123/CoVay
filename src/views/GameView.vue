@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import GameControls from '@/components/game/GameControls.vue'
 import GameInformation from '@/components/game/GameInformation.vue'
@@ -17,6 +17,14 @@ const lastMove = computed(() => {
   return move?.type === 'play' ? move.position : null
 })
 const pendingResign = ref(false)
+
+watch(
+  () => [game.value?.moveHistory.length, game.value?.currentPlayer, game.value?.status],
+  () => {
+    void gameStore.makeBotMove()
+  },
+  { immediate: true },
+)
 
 function play(position: BoardPosition): void {
   gameStore.play(position)
@@ -43,7 +51,7 @@ function confirmResign(): void {
         <GoBoard
           :board="game.board"
           :last-move="lastMove"
-          :disabled="game.status !== 'playing'"
+          :disabled="game.status !== 'playing' || gameStore.isBotThinking"
           @play="play"
         /><GameControls
           :game="game"
