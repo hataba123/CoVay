@@ -17,6 +17,13 @@ const lastMove = computed(() => {
   const move = game.value?.moveHistory.at(-1)
   return move?.type === 'play' ? move.position : null
 })
+const isBotTurn = computed(() => {
+  if (!game.value) return false
+  return (
+    game.value.settings[game.value.currentPlayer === 'black' ? 'blackPlayer' : 'whitePlayer']
+      .type === 'bot'
+  )
+})
 const pendingResign = ref(false)
 const sgfInput = ref<HTMLInputElement | null>(null)
 
@@ -79,10 +86,11 @@ async function loadSgf(event: Event): Promise<void> {
         <GoBoard
           :board="game.board"
           :last-move="lastMove"
-          :disabled="game.status !== 'playing' || gameStore.isBotThinking"
+          :disabled="game.status !== 'playing' || gameStore.isBotThinking || isBotTurn"
           @play="play"
         /><GameControls
           :game="game"
+          :interaction-disabled="gameStore.isBotThinking || isBotTurn"
           @pass="gameStore.pass"
           @resign="requestResign"
           @undo="gameStore.undo"

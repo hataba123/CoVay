@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GameState } from '@/domain/models/game'
 
-defineProps<{ game: GameState }>()
+defineProps<{ game: GameState; interactionDisabled?: boolean }>()
 const emit = defineEmits<{
   pass: []
   resign: []
@@ -16,10 +16,18 @@ const emit = defineEmits<{
 
 <template>
   <div class="controls" aria-label="Điều khiển ván cờ">
-    <button type="button" :disabled="game.status !== 'playing'" @click="emit('pass')">
+    <button
+      type="button"
+      :disabled="game.status !== 'playing' || interactionDisabled"
+      @click="emit('pass')"
+    >
       Bỏ lượt
     </button>
-    <button type="button" :disabled="game.status !== 'playing'" @click="emit('resign')">
+    <button
+      type="button"
+      :disabled="game.status !== 'playing' || interactionDisabled"
+      @click="emit('resign')"
+    >
       Đầu hàng
     </button>
     <button
