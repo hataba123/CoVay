@@ -7,6 +7,7 @@ import GameResultDialog from '@/components/game/GameResultDialog.vue'
 import GoBoard from '@/components/game/GoBoard.vue'
 import MoveHistory from '@/components/game/MoveHistory.vue'
 import type { BoardPosition } from '@/domain/models/game'
+import { exportSgf, importSgf } from '@/services/sgfService'
 import { useGameStore } from '@/stores/gameStore'
 
 const gameStore = useGameStore()
@@ -17,6 +18,7 @@ const lastMove = computed(() => {
   return move?.type === 'play' ? move.position : null
 })
 const pendingResign = ref(false)
+const sgfInput = ref<HTMLInputElement | null>(null)
 
 watch(
   () => [game.value?.moveHistory.length, game.value?.currentPlayer, game.value?.status],
@@ -39,6 +41,32 @@ function confirmResign(): void {
   gameStore.resign()
   pendingResign.value = false
 }
+function downloadSgf(): void {
+  if (!game.value) return
+  const url = URL.createObjectURL(
+    new Blob([exportSgf(game.value)], { type: 'application/x-go-sgf' }),
+  )
+  const link = globalThis.document.createElement('a')
+  link.href = url
+  link.download = 'co-vay.sgf'
+  link.click()
+  URL.revokeObjectURL(url)
+}
+function selectSgf(): void {
+  sgfInput.value?.click()
+}
+async function loadSgf(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  try {
+    gameStore.loadImportedGame(importSgf(await file.text()))
+  } catch (error) {
+    gameStore.setMessage(error instanceof Error ? error.message : 'Không thể nhập tệp SGF.')
+  } finally {
+    input.value = ''
+  }
+}
 </script>
 
 <template>
@@ -60,6 +88,8 @@ function confirmResign(): void {
           @undo="gameStore.undo"
           @redo="gameStore.redo"
           @confirm-score="gameStore.confirmScore"
+          @export-sgf="downloadSgf"
+          @import-sgf="selectSgf"
           @restart="restart"
         />
       </div>
@@ -81,6 +111,13 @@ function confirmResign(): void {
     <p>Hãy tạo một ván mới để bắt đầu chơi.</p>
     <RouterLink to="/new-game">Tạo ván mới</RouterLink>
   </section>
+  <input
+    ref="sgfInput"
+    class="visually-hidden"
+    accept=".sgf,application/x-go-sgf,text/plain"
+    type="file"
+    @change="loadSgf"
+  />
 </template>
 
 <style scoped>
@@ -138,6 +175,15 @@ function confirmResign(): void {
   cursor: pointer;
   padding: 0.6rem 0.8rem;
   text-decoration: none;
+}
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 .confirmation .danger {
   background: #b91c1c;

@@ -8,6 +8,8 @@ const emit = defineEmits<{
   undo: []
   redo: []
   confirmScore: []
+  exportSgf: []
+  importSgf: []
   restart: []
 }>()
 </script>
@@ -42,6 +44,8 @@ const emit = defineEmits<{
     >
       Xác nhận kết quả
     </button>
+    <button type="button" @click="emit('exportSgf')">Xuất SGF</button>
+    <button type="button" @click="emit('importSgf')">Nhập SGF</button>
     <button type="button" @click="emit('restart')">Ván mới</button>
   </div>
 </template>

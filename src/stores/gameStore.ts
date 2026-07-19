@@ -43,6 +43,16 @@ export const useGameStore = defineStore('game', {
       this.createdAt = game.createdAt
       this.message = null
     },
+    loadImportedGame(game: GameState) {
+      this.game = game
+      this.activeGameId = crypto.randomUUID()
+      this.createdAt = new Date().toISOString()
+      this.message = null
+      void this.persistCurrentGame()
+    },
+    setMessage(message: string | null) {
+      this.message = message
+    },
     play(position: BoardPosition) {
       const activePlayer =
         this.game?.settings[this.game.currentPlayer === 'black' ? 'blackPlayer' : 'whitePlayer']
