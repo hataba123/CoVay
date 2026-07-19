@@ -48,6 +48,9 @@ function cloneSnapshot(snapshot: GameStateSnapshot): GameStateSnapshot {
       position: move.position ? clonePosition(move.position) : null,
     })),
     previousBoardHash: snapshot.previousBoardHash,
+    positionHistory: Array.isArray(snapshot.positionHistory)
+      ? [...snapshot.positionHistory]
+      : [boardHash(snapshot.board)],
     status: snapshot.status,
     result: snapshot.result
       ? {
@@ -84,16 +87,19 @@ export function createGameState(settings: Partial<GameSettings> = {}): GameState
     whitePlayer: settings.whitePlayer ?? defaultSettings.whitePlayer,
   }
 
+  const board = Array.from({ length: gameSettings.boardSize }, () =>
+    Array.from({ length: gameSettings.boardSize }, () => null),
+  )
+
   return {
     settings: gameSettings,
-    board: Array.from({ length: gameSettings.boardSize }, () =>
-      Array.from({ length: gameSettings.boardSize }, () => null),
-    ),
+    board,
     currentPlayer: 'black',
     captures: { black: 0, white: 0 },
     consecutivePasses: 0,
     moveHistory: [],
     previousBoardHash: null,
+    positionHistory: [boardHash(board)],
     status: 'playing',
     result: null,
     pastStates: [],
@@ -166,6 +172,14 @@ export function getGroupLiberties(board: Board, group: BoardPosition[]): BoardPo
 
 export function boardHash(board: Board): string {
   return board.map((row) => row.map((stone) => stone?.[0] ?? '.').join('')).join('/')
+}
+
+function getPositionHistory(state: GameState): string[] {
+  if (Array.isArray(state.positionHistory) && state.positionHistory.length > 0)
+    return state.positionHistory
+
+  // Ván lưu trước khi bổ sung superko không có lịch sử thế cờ đầy đủ.
+  return [boardHash(state.board)]
 }
 
 function removeGroup(board: Board, group: BoardPosition[]): void {
@@ -241,8 +255,12 @@ export function tryPlayMove(state: GameState, position: BoardPosition): MoveResu
   if (getGroupLiberties(board, getConnectedGroup(board, position)).length === 0) {
     return { state, error: 'Không được đi tự sát.' }
   }
-  if (boardHash(board) === state.previousBoardHash) {
-    return { state, error: 'Nước đi vi phạm luật Ko.' }
+  const nextBoardHash = boardHash(board)
+  if (
+    nextBoardHash === state.previousBoardHash ||
+    getPositionHistory(state).includes(nextBoardHash)
+  ) {
+    return { state, error: 'Nước đi vi phạm luật positional superko.' }
   }
 
   return {
@@ -253,6 +271,7 @@ export function tryPlayMove(state: GameState, position: BoardPosition): MoveResu
       consecutivePasses: 0,
       moveHistory: appendMove(state, 'play', position, capturedStones),
       previousBoardHash: boardHash(state.board),
+      positionHistory: [...getPositionHistory(state), nextBoardHash],
       status: 'playing',
       result: null,
     }),
@@ -274,6 +293,7 @@ export function passTurn(state: GameState): MoveResult {
       consecutivePasses,
       moveHistory: appendMove(state, 'pass', null, 0),
       previousBoardHash: boardHash(state.board),
+      positionHistory: [...getPositionHistory(state)],
       status: consecutivePasses >= 2 ? 'scoring' : 'playing',
       result: null,
     }),
@@ -295,6 +315,7 @@ export function resignGame(state: GameState): MoveResult {
       consecutivePasses: state.consecutivePasses,
       moveHistory: appendMove(state, 'resign', null, 0),
       previousBoardHash: state.previousBoardHash,
+      positionHistory: [...getPositionHistory(state)],
       status: 'finished',
       result,
     }),

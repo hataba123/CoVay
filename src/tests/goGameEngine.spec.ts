@@ -90,7 +90,20 @@ describe('goGameEngine', () => {
     state.board[2][2] = 'white'
     const capture = tryPlayMove(state, { row: 1, column: 2 })
     expect(capture.error).toBeNull()
-    expect(tryPlayMove(capture.state, { row: 1, column: 1 }).error).toBe('Nước đi vi phạm luật Ko.')
+    expect(tryPlayMove(capture.state, { row: 1, column: 1 }).error).toBe(
+      'Nước đi vi phạm luật positional superko.',
+    )
+  })
+
+  it('records every placed-board position for positional superko', () => {
+    let state = createGameState()
+    state = play(state, { row: 4, column: 4 })
+    state = play(state, { row: 4, column: 5 })
+
+    expect(state.positionHistory).toHaveLength(3)
+    expect(state.positionHistory.at(-1)).toBe(
+      '........./........./........./........./....bw.../........./........./........./.........',
+    )
   })
 
   it('moves to scoring after two consecutive passes and confirms the score', () => {

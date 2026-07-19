@@ -60,6 +60,7 @@ export interface GameStateSnapshot {
   consecutivePasses: number
   moveHistory: GoMove[]
   previousBoardHash: string | null
+  positionHistory: string[]
   status: GameStatus
   result: GameResult | null
 }
