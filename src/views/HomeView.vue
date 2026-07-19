@@ -4,6 +4,15 @@
     <h1>Sẵn sàng cho một ván cờ mới?</h1>
     <p class="description">Chơi cùng bạn bè trên một thiết bị hoặc đối đầu với bot.</p>
     <RouterLink class="primary-action" to="/new-game">Tạo ván mới</RouterLink>
+    <section class="rules">
+      <h2>Luật chơi cơ bản</h2>
+      <ul>
+        <li>Đen đi trước, đặt quân tại giao điểm trống.</li>
+        <li>Nhóm quân hết khí sẽ bị bắt khỏi bàn cờ.</li>
+        <li>Không được đi tự sát hoặc lặp lại trạng thái ngay trước đó (Ko).</li>
+        <li>Hai lần bỏ lượt liên tiếp sẽ chuyển sang xác nhận điểm số.</li>
+      </ul>
+    </section>
   </section>
 </template>
 
@@ -35,5 +44,18 @@ h1 {
 }
 .primary-action:hover {
   background: #075985;
+}
+.rules {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 3rem;
+  max-width: 42rem;
+  padding-top: 1.5rem;
+}
+.rules h2 {
+  font-size: 1.125rem;
+}
+.rules li {
+  color: #475569;
+  margin: 0.45rem 0;
 }
 </style>
