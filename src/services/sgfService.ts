@@ -7,11 +7,57 @@ const sgfLetters = 'abcdefghijklmnopqrstuvwxyz'
 function escapeSgf(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/]/g, '\\]')
 }
-function propertyValue(source: string, property: string): string | null {
-  return new RegExp(`${property}\\[([^\\]]*)\\]`).exec(source)?.[1] ?? null
-}
 function colorName(color: StoneColor): string {
   return color === 'black' ? 'Đen' : 'Trắng'
+}
+
+type SgfNode = Map<string, string[]>
+
+function parseSgfNodes(content: string): SgfNode[] {
+  const source = content.trim()
+  if (!source.startsWith('(;') || !source.endsWith(')')) throw new Error('Tệp SGF không hợp lệ.')
+
+  const nodes: SgfNode[] = []
+  let index = 1
+  while (index < source.length - 1) {
+    while (/\s/.test(source[index] ?? '')) index += 1
+    if (source[index] === '(') throw new Error('SGF có biến thể chưa được hỗ trợ.')
+    if (source[index] !== ';') throw new Error('Tệp SGF không hợp lệ.')
+    index += 1
+
+    const node: SgfNode = new Map()
+    while (index < source.length - 1) {
+      while (/\s/.test(source[index] ?? '')) index += 1
+      if (!/[A-Z]/.test(source[index] ?? '')) break
+
+      const identifierStart = index
+      while (/[A-Z]/.test(source[index] ?? '')) index += 1
+      const identifier = source.slice(identifierStart, index)
+      const values: string[] = []
+      while (source[index] === '[') {
+        index += 1
+        let value = ''
+        while (index < source.length && source[index] !== ']') {
+          if (source[index] === '\\' && index + 1 < source.length) index += 1
+          value += source[index]
+          index += 1
+        }
+        if (source[index] !== ']') throw new Error('Tệp SGF không hợp lệ.')
+        index += 1
+        values.push(value)
+      }
+      if (values.length === 0) throw new Error('Tệp SGF không hợp lệ.')
+      node.set(identifier, values)
+    }
+    nodes.push(node)
+  }
+
+  if (nodes.length === 0) throw new Error('Tệp SGF không hợp lệ.')
+  return nodes
+}
+
+function firstProperty(node: SgfNode, property: string): string | null {
+  return node.get(property)?.[0] ?? null
 }
 
 export function exportSgf(state: GameState): string {
@@ -36,30 +82,41 @@ export function exportSgf(state: GameState): string {
 }
 
 export function importSgf(content: string): GameState {
-  if (!content.trim().startsWith('(;') || !content.trim().endsWith(')'))
-    throw new Error('Tệp SGF không hợp lệ.')
-  const size = Number(propertyValue(content, 'SZ')) as BoardSize
+  const nodes = parseSgfNodes(content)
+  const root = nodes[0]
+  if (root.has('AB') || root.has('AW') || root.has('AE') || root.has('HA') || root.has('PL'))
+    throw new Error('SGF có thiết lập bàn cờ hoặc handicap chưa được hỗ trợ.')
+
+  const size = Number(firstProperty(root, 'SZ')) as BoardSize
   if (!validBoardSizes.has(size)) throw new Error('Chỉ hỗ trợ bàn cờ 9×9, 13×13 hoặc 19×19.')
-  const komi = Number(propertyValue(content, 'KM') ?? '6.5')
+  const komi = Number(firstProperty(root, 'KM') ?? '6.5')
   if (!Number.isFinite(komi)) throw new Error('Komi trong tệp SGF không hợp lệ.')
   const settings: GameSettings = {
     boardSize: size,
     komi,
     mode: 'local',
     blackPlayer: {
-      name: propertyValue(content, 'PB') ?? colorName('black'),
+      name: firstProperty(root, 'PB') ?? colorName('black'),
       color: 'black',
       type: 'human',
     },
     whitePlayer: {
-      name: propertyValue(content, 'PW') ?? colorName('white'),
+      name: firstProperty(root, 'PW') ?? colorName('white'),
       color: 'white',
       type: 'human',
     },
   }
   let state = createGameState(settings)
-  const moves = [...content.matchAll(/;([BW])\[([^\]]*)\]/g)]
-  for (const [, color, coordinate] of moves) {
+  for (const node of nodes.slice(1)) {
+    if (node.has('AB') || node.has('AW') || node.has('AE') || node.has('HA') || node.has('PL'))
+      throw new Error('SGF có thiết lập bàn cờ hoặc handicap chưa được hỗ trợ.')
+    const blackMove = firstProperty(node, 'B')
+    const whiteMove = firstProperty(node, 'W')
+    if (blackMove !== null && whiteMove !== null) throw new Error('Nút SGF có nhiều nước đi.')
+    if (blackMove === null && whiteMove === null) continue
+
+    const color = blackMove === null ? 'W' : 'B'
+    const coordinate = blackMove ?? whiteMove ?? ''
     const expectedColor = state.currentPlayer === 'black' ? 'B' : 'W'
     if (color !== expectedColor) throw new Error('Thứ tự nước đi trong SGF không hợp lệ.')
     if (coordinate === '') {
