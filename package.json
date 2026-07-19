@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify": "npm run format:check && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "pinia": "^4.0.2",
