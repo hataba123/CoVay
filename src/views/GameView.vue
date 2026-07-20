@@ -86,6 +86,7 @@ async function loadSgf(event: Event): Promise<void> {
       <div class="board-area">
         <GoBoard
           :board="game.board"
+          :current-player="game.currentPlayer"
           :dead-stones="game.manualDeadStones"
           :ownership="gameStore.kataGoAnalysis?.ownership"
           :last-move="lastMove"

@@ -5,6 +5,7 @@ import type { Board, BoardPosition } from '@/domain/models/game'
 const props = defineProps<{
   board: Board
   lastMove: BoardPosition | null
+  currentPlayer?: 'black' | 'white'
   deadStones?: BoardPosition[]
   ownership?: number[]
   scoringMode?: boolean
@@ -65,7 +66,39 @@ function selectPosition(row: number, column: number): void {
       role="grid"
       aria-label="Bàn cờ vây"
     >
-      <rect x="-0.6" y="-0.6" :width="boardSize + 0.2" :height="boardSize + 0.2" rx="0.12" />
+      <defs>
+        <linearGradient id="board-grain" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#e7bc6d" />
+          <stop offset="48%" stop-color="#dba755" />
+          <stop offset="100%" stop-color="#c98c3b" />
+        </linearGradient>
+        <radialGradient id="black-stone" cx="30%" cy="24%" r="76%">
+          <stop offset="0%" stop-color="#64748b" />
+          <stop offset="34%" stop-color="#1f2937" />
+          <stop offset="100%" stop-color="#020617" />
+        </radialGradient>
+        <radialGradient id="white-stone" cx="30%" cy="24%" r="76%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="68%" stop-color="#f1f5f9" />
+          <stop offset="100%" stop-color="#cbd5e1" />
+        </radialGradient>
+      </defs>
+      <rect
+        class="board-surface"
+        x="-0.6"
+        y="-0.6"
+        :width="boardSize + 0.2"
+        :height="boardSize + 0.2"
+        rx="0.12"
+      />
+      <rect
+        class="board-inset"
+        x="-0.49"
+        y="-0.49"
+        :width="boardSize - 0.02"
+        :height="boardSize - 0.02"
+        rx="0.06"
+      />
       <g class="grid-lines">
         <line
           v-for="index in boardSize"
@@ -122,7 +155,7 @@ function selectPosition(row: number, column: number): void {
         >
           <circle
             v-if="stone"
-            :class="['stone', stone]"
+            :class="['stone', stone, { 'is-new': isLastMove(rowIndex, columnIndex) }]"
             :cx="columnIndex"
             :cy="rowIndex"
             r="0.43"
@@ -143,11 +176,10 @@ function selectPosition(row: number, column: number): void {
           />
           <circle
             v-if="stone === null"
-            class="hover-target"
+            :class="['hover-target', `preview-${currentPlayer ?? 'black'}`]"
             :cx="columnIndex"
             :cy="rowIndex"
             r="0.39"
-            @click="selectPosition(rowIndex, columnIndex)"
           />
         </g>
       </g>
@@ -157,24 +189,45 @@ function selectPosition(row: number, column: number): void {
 
 <style scoped>
 .board-frame {
-  background: #c98c3b;
-  border: 0.75rem solid #8b5a2b;
-  border-radius: 0.75rem;
-  box-shadow: 0 0.75rem 1.5rem rgb(15 23 42 / 18%);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 14%), transparent 38%),
+    repeating-linear-gradient(90deg, rgb(74 47 19 / 16%) 0 1px, transparent 1px 12px), #8b5a2b;
+  border: 0.7rem solid #70401b;
+  border-radius: 0.9rem;
+  box-shadow:
+    0 0.2rem 0.25rem rgb(15 23 42 / 16%),
+    0 1.1rem 2rem rgb(15 23 42 / 20%),
+    inset 0 1px rgb(255 255 255 / 28%);
   max-width: min(100%, 44rem);
-  padding: 0.25rem;
+  padding: 0.3rem;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+.board-frame:not(.is-disabled):hover {
+  box-shadow:
+    0 0.3rem 0.4rem rgb(15 23 42 / 16%),
+    0 1.35rem 2.25rem rgb(15 23 42 / 22%),
+    inset 0 1px rgb(255 255 255 / 28%);
+  transform: translateY(-2px);
 }
 .go-board {
   display: block;
   height: auto;
   width: 100%;
 }
-rect {
-  fill: #dba755;
+.board-surface {
+  fill: url(#board-grain);
+}
+.board-inset {
+  fill: none;
+  pointer-events: none;
+  stroke: rgb(90 52 17 / 32%);
+  stroke-width: 0.03;
 }
 .grid-lines line {
   stroke: #4a2f13;
-  stroke-width: 0.035;
+  stroke-width: 0.032;
 }
 .star {
   fill: #3e2710;
@@ -198,22 +251,45 @@ rect {
 }
 .hover-target {
   fill: transparent;
-  transition: fill 120ms ease;
+  stroke: transparent;
+  stroke-width: 0.035;
+  transition:
+    fill 130ms ease,
+    stroke 130ms ease,
+    r 130ms ease;
 }
 .intersection.selectable:hover .hover-target,
 .intersection.selectable:focus .hover-target {
-  fill: rgb(255 255 255 / 28%);
+  r: 0.355;
+  stroke: rgb(255 255 255 / 72%);
+}
+.intersection.selectable:hover .hover-target.preview-black,
+.intersection.selectable:focus .hover-target.preview-black {
+  fill: rgb(15 23 42 / 32%);
+}
+.intersection.selectable:hover .hover-target.preview-white,
+.intersection.selectable:focus .hover-target.preview-white {
+  fill: rgb(255 255 255 / 74%);
+  stroke: rgb(15 23 42 / 34%);
+}
+.intersection.selectable:focus .hover-target {
+  stroke-width: 0.055;
 }
 .stone {
-  filter: drop-shadow(0.04rem 0.06rem 0.05rem rgb(15 23 42 / 40%));
+  filter: drop-shadow(0.045rem 0.075rem 0.055rem rgb(15 23 42 / 42%));
+  transform-box: fill-box;
+  transform-origin: center;
 }
 .stone.black {
-  fill: #111827;
+  fill: url(#black-stone);
 }
 .stone.white {
-  fill: #f8fafc;
+  fill: url(#white-stone);
   stroke: #cbd5e1;
   stroke-width: 0.035;
+}
+.stone.is-new {
+  animation: place-stone 220ms cubic-bezier(0.22, 1.28, 0.36, 1) both;
 }
 .dead-stone {
   fill: none;
@@ -224,10 +300,38 @@ rect {
 .last-move {
   fill: #ef4444;
   stroke: #fff;
-  stroke-width: 0.025;
+  stroke-width: 0.03;
   pointer-events: none;
+  animation: last-move-pulse 1.8s ease-in-out infinite;
 }
 .is-disabled {
   opacity: 0.72;
+}
+@keyframes place-stone {
+  from {
+    opacity: 0;
+    transform: scale(0.62);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes last-move-pulse {
+  50% {
+    r: 0.13;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .board-frame,
+  .hover-target,
+  .stone.is-new,
+  .last-move {
+    animation: none;
+    transition: none;
+  }
+  .board-frame:not(.is-disabled):hover {
+    transform: none;
+  }
 }
 </style>
