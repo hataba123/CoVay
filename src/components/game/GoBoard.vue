@@ -68,19 +68,19 @@ function selectPosition(row: number, column: number): void {
     >
       <defs>
         <linearGradient id="board-grain" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stop-color="#e7bc6d" />
-          <stop offset="48%" stop-color="#dba755" />
-          <stop offset="100%" stop-color="#c98c3b" />
+          <stop offset="0%" stop-color="#f1dfaa" />
+          <stop offset="48%" stop-color="#ddc27f" />
+          <stop offset="100%" stop-color="#bd8d4a" />
         </linearGradient>
         <radialGradient id="black-stone" cx="30%" cy="24%" r="76%">
-          <stop offset="0%" stop-color="#64748b" />
-          <stop offset="34%" stop-color="#1f2937" />
-          <stop offset="100%" stop-color="#020617" />
+          <stop offset="0%" stop-color="#617263" />
+          <stop offset="34%" stop-color="#26352a" />
+          <stop offset="100%" stop-color="#0b160f" />
         </radialGradient>
         <radialGradient id="white-stone" cx="30%" cy="24%" r="76%">
-          <stop offset="0%" stop-color="#ffffff" />
-          <stop offset="68%" stop-color="#f1f5f9" />
-          <stop offset="100%" stop-color="#cbd5e1" />
+          <stop offset="0%" stop-color="#fffef8" />
+          <stop offset="68%" stop-color="#f5f0dd" />
+          <stop offset="100%" stop-color="#d8d1b9" />
         </radialGradient>
       </defs>
       <rect
@@ -190,14 +190,14 @@ function selectPosition(row: number, column: number): void {
 <style scoped>
 .board-frame {
   background:
-    linear-gradient(135deg, rgb(255 255 255 / 14%), transparent 38%),
-    repeating-linear-gradient(90deg, rgb(74 47 19 / 16%) 0 1px, transparent 1px 12px), #8b5a2b;
-  border: 0.7rem solid #70401b;
+    linear-gradient(135deg, rgb(237 244 202 / 22%), transparent 38%),
+    repeating-linear-gradient(90deg, rgb(38 67 37 / 18%) 0 1px, transparent 1px 13px), #5d7149;
+  border: 0.7rem solid #40583a;
   border-radius: 0.9rem;
   box-shadow:
-    0 0.2rem 0.25rem rgb(15 23 42 / 16%),
-    0 1.1rem 2rem rgb(15 23 42 / 20%),
-    inset 0 1px rgb(255 255 255 / 28%);
+    0 0.2rem 0.25rem rgb(26 49 31 / 18%),
+    0 1.1rem 2rem rgb(26 49 31 / 24%),
+    inset 0 1px rgb(244 248 215 / 32%);
   max-width: min(100%, 44rem);
   padding: 0.3rem;
   transition:
@@ -206,9 +206,9 @@ function selectPosition(row: number, column: number): void {
 }
 .board-frame:not(.is-disabled):hover {
   box-shadow:
-    0 0.3rem 0.4rem rgb(15 23 42 / 16%),
-    0 1.35rem 2.25rem rgb(15 23 42 / 22%),
-    inset 0 1px rgb(255 255 255 / 28%);
+    0 0.3rem 0.4rem rgb(26 49 31 / 18%),
+    0 1.35rem 2.25rem rgb(26 49 31 / 28%),
+    inset 0 1px rgb(244 248 215 / 32%);
   transform: translateY(-2px);
 }
 .go-board {
@@ -222,25 +222,25 @@ function selectPosition(row: number, column: number): void {
 .board-inset {
   fill: none;
   pointer-events: none;
-  stroke: rgb(90 52 17 / 32%);
+  stroke: rgb(79 91 49 / 48%);
   stroke-width: 0.03;
 }
 .grid-lines line {
-  stroke: #4a2f13;
+  stroke: #5a482c;
   stroke-width: 0.032;
 }
 .star {
-  fill: #3e2710;
+  fill: #4d442d;
 }
 .ownership {
   pointer-events: none;
 }
 .ownership.black-ownership {
-  fill: #0f172a;
+  fill: #1a3525;
 }
 .ownership.white-ownership {
-  fill: #f8fafc;
-  stroke: #2563eb;
+  fill: #fffdf4;
+  stroke: #39715c;
   stroke-width: 0.025;
 }
 .intersection {
@@ -261,22 +261,22 @@ function selectPosition(row: number, column: number): void {
 .intersection.selectable:hover .hover-target,
 .intersection.selectable:focus .hover-target {
   r: 0.355;
-  stroke: rgb(255 255 255 / 72%);
+  stroke: rgb(247 244 211 / 86%);
 }
 .intersection.selectable:hover .hover-target.preview-black,
 .intersection.selectable:focus .hover-target.preview-black {
-  fill: rgb(15 23 42 / 32%);
+  fill: rgb(26 53 37 / 34%);
 }
 .intersection.selectable:hover .hover-target.preview-white,
 .intersection.selectable:focus .hover-target.preview-white {
-  fill: rgb(255 255 255 / 74%);
-  stroke: rgb(15 23 42 / 34%);
+  fill: rgb(255 253 244 / 78%);
+  stroke: rgb(57 113 92 / 58%);
 }
 .intersection.selectable:focus .hover-target {
   stroke-width: 0.055;
 }
 .stone {
-  filter: drop-shadow(0.045rem 0.075rem 0.055rem rgb(15 23 42 / 42%));
+  filter: drop-shadow(0.045rem 0.075rem 0.055rem rgb(26 49 31 / 44%));
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -285,7 +285,7 @@ function selectPosition(row: number, column: number): void {
 }
 .stone.white {
   fill: url(#white-stone);
-  stroke: #cbd5e1;
+  stroke: #cec5aa;
   stroke-width: 0.035;
 }
 .stone.is-new {
@@ -294,12 +294,12 @@ function selectPosition(row: number, column: number): void {
 .dead-stone {
   fill: none;
   pointer-events: none;
-  stroke: #ef4444;
+  stroke: #b84d36;
   stroke-width: 0.08;
 }
 .last-move {
-  fill: #ef4444;
-  stroke: #fff;
+  fill: #c8662e;
+  stroke: #fff8df;
   stroke-width: 0.03;
   pointer-events: none;
   animation: last-move-pulse 1.8s ease-in-out infinite;
