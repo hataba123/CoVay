@@ -32,16 +32,16 @@ const entries = computed(() =>
 
 <style scoped>
 .move-history {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
   max-height: 25rem;
   overflow: auto;
-  padding: 1rem;
+  padding: var(--space-md);
 }
 h2 {
-  font-size: 1rem;
-  margin: 0 0 0.75rem;
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-sm);
 }
 ol {
   list-style: none;
@@ -50,14 +50,14 @@ ol {
 }
 li {
   align-items: center;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--color-rule);
   display: flex;
   font-size: 0.9rem;
-  gap: 0.45rem;
-  padding: 0.45rem 0;
+  gap: var(--space-2xs);
+  padding: 0.55rem 0;
 }
 li span:first-child {
-  color: #64748b;
+  color: var(--color-muted);
   min-width: 1.5rem;
 }
 .move-stone {
@@ -67,18 +67,18 @@ li span:first-child {
   width: 0.7rem;
 }
 .move-stone.black {
-  background: #111827;
+  background: var(--color-stone-black);
 }
 .move-stone.white {
-  background: #fff;
-  border: 1px solid #94a3b8;
+  background: var(--color-stone-white);
+  border: 1px solid var(--color-stone-white-shadow);
 }
 small {
-  color: #15803d;
+  color: var(--color-success);
   margin-left: auto;
 }
 p {
-  color: #64748b;
+  color: var(--color-muted);
   margin: 0;
 }
 </style>

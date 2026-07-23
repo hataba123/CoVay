@@ -23,11 +23,11 @@ const title = computed(() =>
 
 <style scoped>
 .result {
-  background: #ecfeff;
-  border: 1px solid #67e8f9;
-  border-radius: 0.75rem;
-  color: #164e63;
-  padding: 1rem;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-focus);
+  border-radius: var(--radius-md);
+  color: var(--color-ink-2);
+  padding: var(--space-md);
 }
 .result h2 {
   margin: 0 0 0.25rem;
@@ -36,6 +36,6 @@ const title = computed(() =>
   margin: 0;
 }
 .result small {
-  color: #0e7490;
+  color: var(--color-accent-strong);
 }
 </style>

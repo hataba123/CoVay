@@ -39,25 +39,37 @@ onMounted(() => {
 </script>
 
 <template>
-  <section>
-    <h1>Ván đã lưu</h1>
-    <p v-if="loading">Đang tải…</p>
-    <p v-else-if="error" role="alert">{{ error }}</p>
-    <p v-else-if="games.length === 0">Chưa có ván cờ nào được lưu trên thiết bị này.</p>
+  <section class="saved-page">
+    <div class="page-intro">
+      <p class="eyebrow">Thư viện cá nhân</p>
+      <h1>Ván đã lưu</h1>
+      <p>Những ván cờ đang chờ bạn quay lại, ngay trên thiết bị này.</p>
+    </div>
+    <p v-if="loading" class="status-copy">Đang tải…</p>
+    <p v-else-if="error" class="status-copy error" role="alert">{{ error }}</p>
+    <div v-else-if="games.length === 0" class="empty-state">
+      <span class="empty-stone" aria-hidden="true" />
+      <h2>Chưa có ván cờ nào</h2>
+      <p>Bắt đầu một ván mới, rồi những nước đi của bạn sẽ xuất hiện ở đây.</p>
+      <RouterLink to="/new-game">Tạo ván mới <span aria-hidden="true">↗</span></RouterLink>
+    </div>
     <ul v-else class="saved-games">
-      <li v-for="game in games" :key="game.id">
-        <div>
+      <li v-for="(game, index) in games" :key="game.id">
+        <div class="game-index">{{ String(index + 1).padStart(2, '0') }}</div>
+        <div class="game-meta">
           <strong
-            >{{ game.state.settings.blackPlayer.name }} vs
+            >{{ game.state.settings.blackPlayer.name }} <span>vs</span>
             {{ game.state.settings.whitePlayer.name }}</strong
-          ><span
-            >{{ game.state.settings.boardSize }}×{{ game.state.settings.boardSize }} ·
+          >
+          <span
+            >{{ game.state.settings.boardSize }} × {{ game.state.settings.boardSize }} ·
             {{ new Date(game.updatedAt).toLocaleString('vi-VN') }}</span
           >
         </div>
-        <div>
-          <button type="button" @click="resume(game)">Mở</button
-          ><button type="button" @click="remove(game)">Xóa</button>
+        <div class="game-actions">
+          <button class="open" type="button" @click="resume(game)">
+            Mở ván <span aria-hidden="true">↗</span></button
+          ><button class="delete" type="button" @click="remove(game)">Xóa</button>
         </div>
       </li>
     </ul>
@@ -65,49 +77,148 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.saved-page {
+  display: grid;
+  gap: var(--space-xl);
+  max-width: 64rem;
+}
+.page-intro {
+  max-width: 37rem;
+}
+.eyebrow {
+  color: var(--color-accent-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  margin: 0 0 var(--space-md);
+  text-transform: uppercase;
+}
+h1 {
+  margin: 0;
+}
+.page-intro > p:last-child {
+  color: var(--color-ink-2);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+  margin: var(--space-md) 0 0;
+}
+.status-copy {
+  color: var(--color-muted);
+}
+.status-copy.error {
+  color: var(--color-danger);
+}
 .saved-games {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-2xs);
   list-style: none;
-  margin: 1.5rem 0;
-  max-width: 48rem;
+  margin: 0;
   padding: 0;
 }
 .saved-games li {
   align-items: center;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
+  border-bottom: 1px solid var(--color-rule);
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  padding: var(--space-md) 0;
+}
+.saved-games li:first-child {
+  border-top: 1px solid var(--color-rule);
+}
+.game-index {
+  color: var(--color-accent-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+.game-meta {
+  display: grid;
+  gap: var(--space-3xs);
+  min-width: 0;
+}
+.game-meta strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.game-meta strong span {
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+.game-meta > span {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+.game-actions {
+  align-items: center;
   display: flex;
-  justify-content: space-between;
-  padding: 1rem;
+  gap: var(--space-xs);
 }
-.saved-games strong,
-.saved-games span {
-  display: block;
-}
-.saved-games span {
-  color: #64748b;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-.saved-games button {
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.5rem;
+button,
+.empty-state a {
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  margin-left: 0.5rem;
-  padding: 0.5rem 0.7rem;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  padding: 0.65rem 0.8rem;
+  text-decoration: none;
 }
-@media (max-width: 32rem) {
+.open,
+.empty-state a {
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent-ink);
+}
+.open:hover,
+.empty-state a:hover {
+  background: var(--color-accent-strong);
+  transform: translateY(-1px);
+}
+.delete {
+  background: transparent;
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink-2);
+}
+.delete:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.empty-state {
+  align-items: center;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(var(--space-xl), 8vw, var(--space-3xl)) var(--space-md);
+  text-align: center;
+}
+.empty-stone {
+  background: var(--color-stone-black);
+  border-radius: 50%;
+  box-shadow: var(--shadow-stone-soft);
+  height: 3rem;
+  margin-bottom: var(--space-md);
+  width: 3rem;
+}
+.empty-state h2 {
+  margin: 0;
+}
+.empty-state p {
+  color: var(--color-muted);
+  margin: var(--space-2xs) 0 var(--space-md);
+}
+@media (max-width: 40rem) {
   .saved-games li {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.75rem;
+    align-items: start;
+    grid-template-columns: 2rem minmax(0, 1fr);
   }
-  .saved-games button {
-    margin-left: 0;
-    margin-right: 0.5rem;
+  .game-actions {
+    grid-column: 2;
   }
 }
 </style>

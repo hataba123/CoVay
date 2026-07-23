@@ -84,6 +84,17 @@ async function loadSgf(event: Event): Promise<void> {
     <GameResultDialog v-if="game.result" :result="game.result" />
     <div class="game-layout">
       <div class="board-area">
+        <div class="board-heading">
+          <span class="board-label"
+            >{{ game.settings.boardSize }} × {{ game.settings.boardSize }} · VÁN ĐẤU</span
+          ><span class="board-status" :class="{ active: game.status === 'playing' }">{{
+            game.status === 'playing'
+              ? 'Đang chơi'
+              : game.status === 'scoring'
+                ? 'Đang tính điểm'
+                : 'Đã kết thúc'
+          }}</span>
+        </div>
         <GoBoard
           :board="game.board"
           :current-player="game.currentPlayer"
@@ -98,7 +109,8 @@ async function loadSgf(event: Event): Promise<void> {
           "
           @play="play"
           @toggle-dead-group="gameStore.toggleDeadGroup"
-        /><GameControls
+        />
+        <GameControls
           :game="game"
           :interaction-disabled="gameStore.isBotThinking || isBotTurn"
           :kata-go-analyzing="gameStore.isKataGoAnalyzing"
@@ -120,7 +132,8 @@ async function loadSgf(event: Event): Promise<void> {
     </div>
     <div v-if="pendingResign" class="modal-backdrop" role="presentation">
       <section class="confirmation" aria-modal="true" role="dialog" aria-labelledby="resign-title">
-        <h2 id="resign-title">Xác nhận đầu hàng</h2>
+        <p class="modal-eyebrow">Xác nhận hành động</p>
+        <h2 id="resign-title">Đầu hàng ván cờ?</h2>
         <p>Bạn có chắc muốn kết thúc ván cờ này?</p>
         <div>
           <button type="button" @click="pendingResign = false">Hủy</button
@@ -130,9 +143,10 @@ async function loadSgf(event: Event): Promise<void> {
     </div>
   </section>
   <section v-else class="empty-game">
+    <span class="empty-stone" aria-hidden="true" />
     <h1>Chưa có ván cờ</h1>
     <p>Hãy tạo một ván mới để bắt đầu chơi.</p>
-    <RouterLink to="/new-game">Tạo ván mới</RouterLink>
+    <RouterLink to="/new-game">Tạo ván mới <span aria-hidden="true">↗</span></RouterLink>
   </section>
   <input
     ref="sgfInput"
@@ -146,62 +160,131 @@ async function loadSgf(event: Event): Promise<void> {
 <style scoped>
 .game-view {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 .game-layout {
   align-items: start;
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  gap: var(--space-lg);
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
 }
 .board-area {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+.board-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+.board-label,
+.board-status {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.board-status.active {
+  color: var(--color-success);
 }
 .game-sidebar {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-sm);
 }
 .message {
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
-  border-radius: 0.5rem;
-  color: #92400e;
+  background: var(--color-warning);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-warning-ink);
   margin: 0;
-  padding: 0.75rem;
+  padding: var(--space-sm);
 }
 .modal-backdrop {
   align-items: center;
-  background: rgb(15 23 42 / 55%);
+  background: var(--color-overlay);
   display: flex;
   inset: 0;
   justify-content: center;
-  padding: 1rem;
+  padding: var(--space-md);
   position: fixed;
   z-index: 10;
 }
 .confirmation {
-  background: #fff;
-  border-radius: 0.75rem;
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lifted);
   max-width: 28rem;
-  padding: 1.5rem;
+  padding: var(--space-xl);
+  width: 100%;
+}
+.modal-eyebrow {
+  color: var(--color-accent-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  margin: 0 0 var(--space-sm);
+  text-transform: uppercase;
 }
 .confirmation h2 {
-  margin-top: 0;
+  margin: 0;
+}
+.confirmation > p:not(.modal-eyebrow) {
+  color: var(--color-ink-2);
+  line-height: 1.5;
 }
 .confirmation div {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-xs);
   justify-content: flex-end;
+  margin-top: var(--space-lg);
 }
 .confirmation button,
 .empty-game a {
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.5rem;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-2);
   cursor: pointer;
-  padding: 0.6rem 0.8rem;
+  font-weight: 700;
+  padding: 0.7rem 0.9rem;
   text-decoration: none;
+}
+.confirmation button:hover,
+.empty-game a:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+.confirmation .danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-accent-ink);
+}
+.empty-game {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3xl) var(--space-md);
+  text-align: center;
+}
+.empty-game .empty-stone {
+  background: var(--color-stone-black);
+  border-radius: 50%;
+  height: 3rem;
+  width: 3rem;
+}
+.empty-game h1 {
+  margin: var(--space-md) 0 0;
+}
+.empty-game p {
+  color: var(--color-muted);
+}
+.empty-game a {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 .visually-hidden {
   clip: rect(0 0 0 0);
@@ -212,27 +295,19 @@ async function loadSgf(event: Event): Promise<void> {
   white-space: nowrap;
   width: 1px;
 }
-.confirmation .danger {
-  background: #b91c1c;
-  border-color: #b91c1c;
-  color: #fff;
-}
-.empty-game {
-  text-align: center;
-}
-.empty-game a {
-  background: #0369a1;
-  border-color: #0369a1;
-  color: #fff;
-  display: inline-block;
-  font-weight: 700;
-}
 @media (max-width: 58rem) {
   .game-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .board-area :deep(.board-frame) {
     margin-inline: auto;
+  }
+}
+@media (max-width: 34rem) {
+  .board-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-2xs);
   }
 }
 </style>

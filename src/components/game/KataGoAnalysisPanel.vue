@@ -49,14 +49,14 @@ function formatScore(value: number | null): string {
 
 <style scoped>
 .katago-analysis {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1rem;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
 }
 h2,
 h3 {
-  color: #0f172a;
+  color: var(--color-ink);
   margin: 0;
 }
 h3 {
@@ -65,33 +65,33 @@ h3 {
 }
 dl {
   display: grid;
-  gap: 0.5rem;
+  gap: var(--space-2xs);
   grid-template-columns: repeat(3, 1fr);
   margin: 0.9rem 0;
 }
 dt {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 0.75rem;
 }
 dd {
-  color: #0f172a;
+  color: var(--color-ink);
   font-weight: 700;
   margin: 0.15rem 0 0;
 }
 .ownership-help,
 .empty {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 0.8rem;
   margin: 0;
 }
 ol {
   display: grid;
-  gap: 0.6rem;
+  gap: var(--space-2xs);
   margin: 0.7rem 0 0;
   padding-left: 1.25rem;
 }
 li {
-  color: #334155;
+  color: var(--color-ink-2);
   padding-left: 0.2rem;
 }
 li span,
@@ -99,7 +99,7 @@ li small {
   display: block;
 }
 li small {
-  color: #64748b;
+  color: var(--color-muted);
   margin-top: 0.15rem;
   overflow-wrap: anywhere;
 }

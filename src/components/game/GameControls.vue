@@ -73,39 +73,40 @@ const emit = defineEmits<{
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2xs);
 }
 .scoring-help {
-  color: #475569;
+  color: var(--color-ink-2);
   flex-basis: 100%;
   margin: 0;
 }
 button {
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.5rem;
-  color: #334155;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-2);
   cursor: pointer;
   font-weight: 650;
-  padding: 0.65rem 0.8rem;
+  padding: 0.65rem 0.85rem;
 }
 button:hover:not(:disabled) {
-  background: #f1f5f9;
+  background: var(--color-paper-3);
+  transform: translateY(-1px);
 }
 button:focus-visible {
-  outline: 3px solid #7dd3fc;
-  outline-offset: 2px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
 }
 button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 .primary {
-  background: #0369a1;
-  border-color: #0369a1;
-  color: #fff;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 .primary:hover:not(:disabled) {
-  background: #075985;
+  background: var(--color-accent-strong);
 }
 </style>

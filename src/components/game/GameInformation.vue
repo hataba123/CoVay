@@ -35,31 +35,32 @@ const currentPlayer = computed(() =>
 <style scoped>
 .game-information {
   align-items: center;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
   display: grid;
-  gap: 1rem;
+  gap: var(--space-md);
   grid-template-columns: 1fr auto 1fr;
-  padding: 1rem;
+  padding: var(--space-sm) var(--space-md);
 }
 .player {
   align-items: center;
-  color: #475569;
+  color: var(--color-muted);
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2xs);
   min-width: 0;
 }
 .player.right {
   justify-content: flex-end;
 }
 .player.active {
-  color: #0f172a;
+  color: var(--color-ink);
   font-weight: 700;
 }
 .player strong {
-  color: #64748b;
-  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -68,24 +69,24 @@ const currentPlayer = computed(() =>
   border-radius: 999px;
   display: inline-block;
   flex: 0 0 auto;
-  height: 1rem;
-  width: 1rem;
+  height: 0.9rem;
+  width: 0.9rem;
 }
 .stone.black,
 .turn-stone.black {
-  background: #111827;
+  background: var(--color-stone-black);
 }
 .stone.white,
 .turn-stone.white {
-  background: #fff;
-  border: 1px solid #94a3b8;
+  background: var(--color-stone-white);
+  border: 1px solid var(--color-stone-white-shadow);
 }
 .turn {
   align-items: center;
-  color: #0369a1;
+  color: var(--color-accent-strong);
   display: flex;
   font-weight: 700;
-  gap: 0.5rem;
+  gap: var(--space-2xs);
   text-align: center;
 }
 @media (max-width: 40rem) {
