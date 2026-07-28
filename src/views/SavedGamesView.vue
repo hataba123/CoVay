@@ -166,6 +166,7 @@ button,
   font-weight: 700;
   padding: 0.65rem 0.8rem;
   text-decoration: none;
+  white-space: nowrap;
 }
 .open,
 .empty-state a {
@@ -173,19 +174,10 @@ button,
   border: 1px solid var(--color-accent);
   color: var(--color-accent-ink);
 }
-.open:hover,
-.empty-state a:hover {
-  background: var(--color-accent-strong);
-  transform: translateY(-1px);
-}
 .delete {
   background: transparent;
   border: 1px solid var(--color-rule);
   color: var(--color-ink-2);
-}
-.delete:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
 }
 .empty-state {
   align-items: center;
@@ -212,13 +204,37 @@ button,
   color: var(--color-muted);
   margin: var(--space-2xs) 0 var(--space-md);
 }
+@media (hover: hover) and (pointer: fine) {
+  .open:hover,
+  .empty-state a:hover {
+    background: var(--color-accent-strong);
+  }
+  .delete:hover {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+  }
+}
 @media (max-width: 40rem) {
+  .page-intro > p:last-child {
+    font-size: var(--text-md);
+  }
   .saved-games li {
     align-items: start;
-    grid-template-columns: 2rem minmax(0, 1fr);
+    background: var(--color-paper-2);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    padding: var(--space-md);
+  }
+  .saved-games li:first-child {
+    border-top: 1px solid var(--color-rule);
   }
   .game-actions {
     grid-column: 2;
+    width: 100%;
+  }
+  .game-actions button {
+    flex: 1;
   }
 }
 </style>

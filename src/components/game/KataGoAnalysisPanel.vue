@@ -66,7 +66,7 @@ h3 {
 dl {
   display: grid;
   gap: var(--space-2xs);
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0.9rem 0;
 }
 dt {
@@ -77,6 +77,7 @@ dd {
   color: var(--color-ink);
   font-weight: 700;
   margin: 0.15rem 0 0;
+  font-variant-numeric: tabular-nums;
 }
 .ownership-help,
 .empty {

@@ -66,7 +66,7 @@ h1 {
   background: var(--color-paper-2);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-card);
   display: flex;
   gap: var(--space-lg);
   justify-content: space-between;
@@ -98,6 +98,8 @@ select {
   color: var(--color-ink);
   min-height: 3rem;
   min-width: 8rem;
+  outline: 2px solid transparent;
+  outline-offset: 1px;
   padding: 0.7rem 0.8rem;
 }
 .visually-hidden {
@@ -110,9 +112,13 @@ select {
   width: 1px;
 }
 @media (max-width: 36rem) {
+  .page-intro > p:last-child {
+    font-size: var(--text-md);
+  }
   .settings-card {
     align-items: stretch;
     flex-direction: column;
+    padding: var(--space-md);
   }
   select {
     width: 100%;

@@ -49,6 +49,7 @@ const currentPlayer = computed(() =>
   display: flex;
   gap: var(--space-2xs);
   min-width: 0;
+  overflow: hidden;
 }
 .player.right {
   justify-content: flex-end;
@@ -91,13 +92,36 @@ const currentPlayer = computed(() =>
 }
 @media (max-width: 40rem) {
   .game-information {
-    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: var(--space-sm);
   }
   .player.right {
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
   .turn {
+    grid-column: 1 / -1;
+    justify-content: center;
     order: -1;
+  }
+  .player {
+    align-items: flex-start;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .player strong {
+    grid-column: 2;
+  }
+  .player.right {
+    grid-template-columns: minmax(0, 1fr) auto;
+    text-align: right;
+  }
+  .player.right .stone {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .player.right strong {
+    grid-column: 1;
   }
 }
 </style>

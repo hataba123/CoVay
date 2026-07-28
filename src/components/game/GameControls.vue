@@ -49,6 +49,7 @@ const emit = defineEmits<{
       Làm lại
     </button>
     <button
+      class="analyze"
       type="button"
       :disabled="game.status !== 'playing' || interactionDisabled || kataGoAnalyzing"
       @click="emit('analyzeKatago')"
@@ -88,10 +89,7 @@ button {
   cursor: pointer;
   font-weight: 650;
   padding: 0.65rem 0.85rem;
-}
-button:hover:not(:disabled) {
-  background: var(--color-paper-3);
-  transform: translateY(-1px);
+  white-space: nowrap;
 }
 button:focus-visible {
   outline: 3px solid var(--color-focus);
@@ -106,7 +104,26 @@ button:disabled {
   border-color: var(--color-accent);
   color: var(--color-accent-ink);
 }
-.primary:hover:not(:disabled) {
-  background: var(--color-accent-strong);
+@media (hover: hover) and (pointer: fine) {
+  button:hover:not(:disabled) {
+    background: var(--color-paper-3);
+  }
+  .primary:hover:not(:disabled) {
+    background: var(--color-accent-strong);
+  }
+}
+@media (max-width: 34rem) {
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .controls button {
+    width: 100%;
+  }
+  .scoring-help,
+  .analyze,
+  .primary {
+    grid-column: 1 / -1;
+  }
 }
 </style>

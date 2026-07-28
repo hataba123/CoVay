@@ -160,7 +160,7 @@ async function loadSgf(event: Event): Promise<void> {
 <style scoped>
 .game-view {
   display: grid;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 .game-layout {
   align-items: start;
@@ -177,6 +177,7 @@ async function loadSgf(event: Event): Promise<void> {
   align-items: center;
   display: flex;
   justify-content: space-between;
+  min-height: 2rem;
 }
 .board-label,
 .board-status {
@@ -192,6 +193,7 @@ async function loadSgf(event: Event): Promise<void> {
 .game-sidebar {
   display: grid;
   gap: var(--space-sm);
+  min-width: 0;
 }
 .message {
   background: var(--color-warning);
@@ -219,6 +221,7 @@ async function loadSgf(event: Event): Promise<void> {
   max-width: 28rem;
   padding: var(--space-xl);
   width: 100%;
+  animation: modal-enter var(--dur-medium) var(--ease-out) both;
 }
 .modal-eyebrow {
   color: var(--color-accent-strong);
@@ -251,11 +254,7 @@ async function loadSgf(event: Event): Promise<void> {
   font-weight: 700;
   padding: 0.7rem 0.9rem;
   text-decoration: none;
-}
-.confirmation button:hover,
-.empty-game a:hover {
-  border-color: var(--color-accent);
-  transform: translateY(-1px);
+  white-space: nowrap;
 }
 .confirmation .danger {
   background: var(--color-danger);
@@ -295,6 +294,18 @@ async function loadSgf(event: Event): Promise<void> {
   white-space: nowrap;
   width: 1px;
 }
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .confirmation button:hover,
+  .empty-game a:hover {
+    border-color: var(--color-accent);
+  }
+}
 @media (max-width: 58rem) {
   .game-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -302,12 +313,35 @@ async function loadSgf(event: Event): Promise<void> {
   .board-area :deep(.board-frame) {
     margin-inline: auto;
   }
+  .game-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 42rem) {
+  .game-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media (max-width: 34rem) {
   .board-heading {
     align-items: flex-start;
     flex-direction: column;
     gap: var(--space-2xs);
+  }
+  .confirmation {
+    padding: var(--space-lg);
+  }
+  .confirmation div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .confirmation button {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confirmation {
+    animation: none;
   }
 }
 </style>

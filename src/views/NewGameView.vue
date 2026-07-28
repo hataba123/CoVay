@@ -132,7 +132,7 @@ h1 {
   background: var(--color-paper-2);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-card);
   padding: clamp(var(--space-md), 4vw, var(--space-xl));
 }
 .form-heading {
@@ -171,11 +171,9 @@ select {
   border-radius: var(--radius-sm);
   color: var(--color-ink);
   min-height: 3rem;
+  outline: 2px solid transparent;
+  outline-offset: 1px;
   padding: 0.75rem 0.85rem;
-}
-input:hover,
-select:hover {
-  border-color: var(--color-accent);
 }
 .komi-field {
   max-width: calc(50% - var(--space-2xs));
@@ -204,16 +202,28 @@ button {
   padding: 0.9rem 1.1rem;
   white-space: nowrap;
 }
-button:hover {
-  background: var(--color-accent-strong);
-  transform: translateY(-2px);
-}
 button span {
   margin-left: 0.55rem;
 }
+@media (hover: hover) and (pointer: fine) {
+  input:hover,
+  select:hover {
+    background: var(--color-paper-2);
+  }
+  button:hover {
+    background: var(--color-accent-strong);
+  }
+}
 @media (max-width: 38rem) {
+  .page-intro > p:last-child {
+    font-size: var(--text-md);
+  }
+  .setup-card {
+    padding: var(--space-md);
+  }
   .form-grid {
     grid-template-columns: 1fr;
+    padding-block: var(--space-lg);
   }
   .komi-field {
     max-width: none;

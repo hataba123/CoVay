@@ -55,6 +55,7 @@ li {
   font-size: 0.9rem;
   gap: var(--space-2xs);
   padding: 0.55rem 0;
+  font-variant-numeric: tabular-nums;
 }
 li span:first-child {
   color: var(--color-muted);

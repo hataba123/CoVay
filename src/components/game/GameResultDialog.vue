@@ -28,6 +28,7 @@ const title = computed(() =>
   border-radius: var(--radius-md);
   color: var(--color-ink-2);
   padding: var(--space-md);
+  box-shadow: var(--shadow-card);
 }
 .result h2 {
   margin: 0 0 0.25rem;

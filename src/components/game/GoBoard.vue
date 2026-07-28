@@ -203,15 +203,8 @@ function selectPosition(row: number, column: number): void {
   max-width: min(100%, 44rem);
   padding: 0.3rem;
   transition:
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-.board-frame:not(.is-disabled):hover {
-  box-shadow:
-    0 0.3rem 0.4rem var(--shadow-board-tight),
-    0 1.35rem 2.25rem var(--shadow-board),
-    inset 0 1px var(--color-board-light);
-  transform: translateY(-2px);
+    box-shadow var(--dur-short) var(--ease-out),
+    transform var(--dur-short) var(--ease-out);
 }
 .go-board {
   display: block;
@@ -256,9 +249,9 @@ function selectPosition(row: number, column: number): void {
   stroke: transparent;
   stroke-width: 0.035;
   transition:
-    fill 130ms ease,
-    stroke 130ms ease,
-    r 130ms ease;
+    fill 130ms var(--ease-out),
+    stroke 130ms var(--ease-out),
+    r 130ms var(--ease-out);
 }
 .intersection.selectable:hover .hover-target,
 .intersection.selectable:focus .hover-target {
@@ -294,7 +287,7 @@ function selectPosition(row: number, column: number): void {
   stroke-width: 0.035;
 }
 .stone.is-new {
-  animation: place-stone 220ms cubic-bezier(0.22, 1.28, 0.36, 1) both;
+  animation: place-stone var(--dur-short) var(--ease-out) both;
 }
 .dead-stone {
   fill: none;
@@ -307,7 +300,6 @@ function selectPosition(row: number, column: number): void {
   stroke: var(--color-stone-white);
   stroke-width: 0.03;
   pointer-events: none;
-  animation: last-move-pulse 1.8s var(--ease-in-out) infinite;
 }
 .is-disabled {
   opacity: 0.72;
@@ -322,9 +314,9 @@ function selectPosition(row: number, column: number): void {
     transform: scale(1);
   }
 }
-@keyframes last-move-pulse {
-  50% {
-    r: 0.13;
+@media (hover: hover) and (pointer: fine) {
+  .board-frame:not(.is-disabled):hover {
+    transform: translateY(-2px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -44,14 +44,14 @@
 <style scoped>
 .home-page {
   display: grid;
-  gap: var(--space-3xl);
+  gap: clamp(var(--space-2xl), 9vw, var(--space-3xl));
 }
 .home-hero {
   align-items: center;
   display: grid;
   gap: clamp(var(--space-xl), 8vw, var(--space-3xl));
   grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
-  min-height: min(55rem, 65vh);
+  min-height: min(50rem, 68svh);
 }
 .hero-copy {
   max-width: 42rem;
@@ -71,7 +71,7 @@ h1 {
   max-width: 12ch;
 }
 h1 em {
-  color: var(--color-accent-strong);
+  color: var(--color-ink);
   font-style: normal;
 }
 .description {
@@ -97,22 +97,27 @@ h1 em {
   gap: 0.65rem;
   padding: 0.9rem 1.1rem;
   text-decoration: none;
-}
-.primary-action:hover {
-  background: var(--color-accent-strong);
-  transform: translateY(-2px);
+  min-height: var(--control-height);
 }
 .primary-action span {
   font-size: 1.1rem;
 }
 .text-action {
+  align-items: center;
   color: var(--color-ink-2);
+  display: inline-flex;
   font-size: var(--text-sm);
   font-weight: 700;
+  min-height: var(--control-height);
   text-decoration: none;
 }
-.text-action:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) and (pointer: fine) {
+  .primary-action:hover {
+    background: var(--color-accent-strong);
+  }
+  .text-action:hover {
+    color: var(--color-accent-strong);
+  }
 }
 .hero-board {
   background: var(--color-board-frame);
@@ -168,9 +173,9 @@ h1 em {
   padding-top: var(--space-md);
 }
 .rules-heading {
-  align-items: baseline;
-  display: flex;
-  gap: var(--space-sm);
+  align-content: start;
+  display: grid;
+  gap: var(--space-2xs);
 }
 .section-number,
 .rules li span {
@@ -208,6 +213,7 @@ h1 em {
     margin-inline: auto;
     max-width: 32rem;
     width: 100%;
+    transform: rotate(1deg);
   }
 }
 @media (max-width: 40rem) {
@@ -215,8 +221,32 @@ h1 em {
     gap: var(--space-2xl);
   }
   h1 {
-    font-size: clamp(2.8rem, 16vw, 4.5rem);
+    font-size: clamp(2.65rem, 14vw, 4.15rem);
     max-width: 11ch;
+  }
+  .description {
+    font-size: var(--text-md);
+    margin-block: var(--space-md) var(--space-lg);
+  }
+  .hero-actions {
+    align-items: stretch;
+    display: grid;
+    gap: var(--space-xs);
+  }
+  .primary-action,
+  .text-action {
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .text-action {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    padding: 0.8rem 1rem;
+  }
+  .hero-board {
+    border-width: 0.5rem;
+    padding: var(--space-sm);
   }
   .rules {
     gap: var(--space-md);
