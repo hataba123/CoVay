@@ -10,14 +10,18 @@ import MoveHistory from '@/components/game/MoveHistory.vue'
 import type { BoardPosition } from '@/domain/models/game'
 import { exportSgf, importSgf } from '@/services/sgfService'
 import { useGameStore } from '@/stores/gameStore'
+import { useAudioHaptics } from '@/composables/useAudioHaptics'
 
 const gameStore = useGameStore()
 const router = useRouter()
+const { triggerHaptic } = useAudioHaptics()
+
 const game = computed(() => gameStore.game)
 const lastMove = computed(() => {
   const move = game.value?.moveHistory.at(-1)
   return move?.type === 'play' ? move.position : null
 })
+
 const isBotTurn = computed(() => {
   if (!game.value) return false
   return (
@@ -25,8 +29,10 @@ const isBotTurn = computed(() => {
       .type === 'bot'
   )
 })
+
 const pendingResign = ref(false)
 const sgfInput = ref<HTMLInputElement | null>(null)
+const mobileActiveTab = ref<'game' | 'history' | 'analysis'>('game')
 
 watch(
   () => [game.value?.moveHistory.length, game.value?.currentPlayer, game.value?.status],
@@ -39,16 +45,21 @@ watch(
 function play(position: BoardPosition): void {
   gameStore.play(position)
 }
+
 function restart(): void {
   void router.push('/new-game')
 }
+
 function requestResign(): void {
+  triggerHaptic('error')
   pendingResign.value = true
 }
+
 function confirmResign(): void {
   gameStore.resign()
   pendingResign.value = false
 }
+
 function downloadSgf(): void {
   if (!game.value) return
   const url = URL.createObjectURL(
@@ -60,9 +71,11 @@ function downloadSgf(): void {
   link.click()
   URL.revokeObjectURL(url)
 }
+
 function selectSgf(): void {
   sgfInput.value?.click()
 }
+
 async function loadSgf(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
@@ -78,23 +91,28 @@ async function loadSgf(event: Event): Promise<void> {
 </script>
 
 <template>
-  <section v-if="game" class="game-view">
+  <section v-if="game" class="game-view-wrapper">
+    <!-- Top Player HUD -->
     <GameInformation :game="game" />
-    <p v-if="gameStore.message" class="message" role="alert">{{ gameStore.message }}</p>
-    <GameResultDialog v-if="game.result" :result="game.result" />
-    <div class="game-layout">
-      <div class="board-area">
-        <div class="board-heading">
-          <span class="board-label"
-            >{{ game.settings.boardSize }} × {{ game.settings.boardSize }} · VÁN ĐẤU</span
-          ><span class="board-status" :class="{ active: game.status === 'playing' }">{{
-            game.status === 'playing'
-              ? 'Đang chơi'
-              : game.status === 'scoring'
-                ? 'Đang tính điểm'
-                : 'Đã kết thúc'
-          }}</span>
-        </div>
+
+    <!-- iOS Message Banner -->
+    <transition name="toast-slide">
+      <div v-if="gameStore.message" class="ios-toast" role="alert">
+        <span class="toast-dot" />
+        <span>{{ gameStore.message }}</span>
+      </div>
+    </transition>
+
+    <!-- Victory Dialog Modal -->
+    <GameResultDialog
+      v-if="game.result"
+      :result="game.result"
+      @restart="restart"
+    />
+
+    <!-- Main Board Area & Desktop Sidebar -->
+    <div class="game-main-layout">
+      <div class="board-column">
         <GoBoard
           :board="game.board"
           :current-player="game.currentPlayer"
@@ -110,6 +128,8 @@ async function loadSgf(event: Event): Promise<void> {
           @play="play"
           @toggle-dead-group="gameStore.toggleDeadGroup"
         />
+
+        <!-- Tactical Controls Dock -->
         <GameControls
           :game="game"
           :interaction-disabled="gameStore.isBotThinking || isBotTurn"
@@ -125,29 +145,112 @@ async function loadSgf(event: Event): Promise<void> {
           @analyze-katago="gameStore.analyzeWithKataGo"
         />
       </div>
-      <aside class="game-sidebar">
+
+      <!-- Desktop Sidebar -->
+      <aside class="desktop-sidebar">
         <MoveHistory :moves="game.moveHistory" />
-        <KataGoAnalysisPanel v-if="gameStore.kataGoAnalysis" :analysis="gameStore.kataGoAnalysis" />
+        <KataGoAnalysisPanel
+          v-if="gameStore.kataGoAnalysis"
+          :analysis="gameStore.kataGoAnalysis"
+        />
       </aside>
     </div>
-    <div v-if="pendingResign" class="modal-backdrop" role="presentation">
-      <section class="confirmation" aria-modal="true" role="dialog" aria-labelledby="resign-title">
-        <p class="modal-eyebrow">Xác nhận hành động</p>
-        <h2 id="resign-title">Đầu hàng ván cờ?</h2>
-        <p>Bạn có chắc muốn kết thúc ván cờ này?</p>
-        <div>
-          <button type="button" @click="pendingResign = false">Hủy</button
-          ><button class="danger" type="button" @click="confirmResign">Đầu hàng</button>
+
+    <!-- Mobile Secondary Drawer Toggle Pill -->
+    <div class="mobile-drawer-tabs">
+      <button
+        class="tab-btn"
+        :class="{ active: mobileActiveTab === 'history' }"
+        type="button"
+        @click="mobileActiveTab = mobileActiveTab === 'history' ? 'game' : 'history'"
+      >
+        <span>📜 Lịch sử ({{ game.moveHistory.length }})</span>
+      </button>
+
+      <button
+        v-if="gameStore.kataGoAnalysis"
+        class="tab-btn ai-tab"
+        :class="{ active: mobileActiveTab === 'analysis' }"
+        type="button"
+        @click="mobileActiveTab = mobileActiveTab === 'analysis' ? 'game' : 'analysis'"
+      >
+        <span>✨ KataGo AI</span>
+      </button>
+    </div>
+
+    <!-- Mobile Expandable Bottom Sheet for History/Analysis -->
+    <div
+      v-if="mobileActiveTab !== 'game'"
+      class="mobile-bottom-sheet ios-glass"
+    >
+      <div class="sheet-header">
+        <div class="sheet-grabber" aria-hidden="true" />
+        <button
+          class="sheet-close-btn"
+          type="button"
+          @click="mobileActiveTab = 'game'"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="sheet-content">
+        <MoveHistory
+          v-if="mobileActiveTab === 'history'"
+          :moves="game.moveHistory"
+        />
+        <KataGoAnalysisPanel
+          v-if="mobileActiveTab === 'analysis' && gameStore.kataGoAnalysis"
+          :analysis="gameStore.kataGoAnalysis"
+        />
+      </div>
+    </div>
+
+    <!-- iOS Style Action Sheet for Resign Confirmation -->
+    <div
+      v-if="pendingResign"
+      class="ios-action-sheet-backdrop"
+      role="presentation"
+      @click.self="pendingResign = false"
+    >
+      <div class="ios-action-sheet" role="alertdialog" aria-labelledby="resign-title">
+        <div class="action-sheet-content">
+          <h3 id="resign-title">Đầu hàng ván cờ?</h3>
+          <p>Bạn có chắc muốn đầu hàng và chấp nhận thua ván cờ này?</p>
+          <button
+            class="action-sheet-btn danger"
+            type="button"
+            @click="confirmResign"
+          >
+            Đầu hàng
+          </button>
         </div>
-      </section>
+        <div class="action-sheet-cancel">
+          <button
+            class="action-sheet-btn cancel"
+            type="button"
+            @click="pendingResign = false"
+          >
+            Hủy bỏ
+          </button>
+        </div>
+      </div>
     </div>
   </section>
-  <section v-else class="empty-game">
-    <span class="empty-stone" aria-hidden="true" />
-    <h1>Chưa có ván cờ</h1>
-    <p>Hãy tạo một ván mới để bắt đầu chơi.</p>
-    <RouterLink to="/new-game">Tạo ván mới <span aria-hidden="true">↗</span></RouterLink>
+
+  <!-- Empty Game State -->
+  <section v-else class="empty-state-card ios-card">
+    <div class="empty-icon-ring" aria-hidden="true">
+      <span class="empty-stone" />
+    </div>
+    <h2>Chưa có ván cờ</h2>
+    <p>Hãy tạo một ván mới để bắt đầu trải nghiệm cờ vây mượt mà.</p>
+    <RouterLink class="ios-primary-btn" to="/new-game">
+      Tạo ván mới ↗
+    </RouterLink>
   </section>
+
+  <!-- Hidden SGF File Input -->
   <input
     ref="sgfInput"
     class="visually-hidden"
@@ -158,133 +261,256 @@ async function loadSgf(event: Event): Promise<void> {
 </template>
 
 <style scoped>
-.game-view {
-  display: grid;
-  gap: var(--space-sm);
-}
-.game-layout {
-  align-items: start;
-  display: grid;
-  gap: var(--space-lg);
-  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
-}
-.board-area {
-  display: grid;
-  gap: var(--space-sm);
-  min-width: 0;
-}
-.board-heading {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  min-height: 2rem;
-}
-.board-label,
-.board-status {
-  color: var(--color-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.board-status.active {
-  color: var(--color-success);
-}
-.game-sidebar {
-  display: grid;
-  gap: var(--space-sm);
-  min-width: 0;
-}
-.message {
-  background: var(--color-warning);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-sm);
-  color: var(--color-warning-ink);
-  margin: 0;
-  padding: var(--space-sm);
-}
-.modal-backdrop {
-  align-items: center;
-  background: var(--color-overlay);
-  display: flex;
-  inset: 0;
-  justify-content: center;
-  padding: var(--space-md);
-  position: fixed;
-  z-index: 10;
-}
-.confirmation {
-  background: var(--color-paper);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lifted);
-  max-width: 28rem;
-  padding: var(--space-xl);
-  width: 100%;
-  animation: modal-enter var(--dur-medium) var(--ease-out) both;
-}
-.modal-eyebrow {
-  color: var(--color-accent-strong);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.1em;
-  margin: 0 0 var(--space-sm);
-  text-transform: uppercase;
-}
-.confirmation h2 {
-  margin: 0;
-}
-.confirmation > p:not(.modal-eyebrow) {
-  color: var(--color-ink-2);
-  line-height: 1.5;
-}
-.confirmation div {
-  display: flex;
-  gap: var(--space-xs);
-  justify-content: flex-end;
-  margin-top: var(--space-lg);
-}
-.confirmation button,
-.empty-game a {
-  background: var(--color-paper-2);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-sm);
-  color: var(--color-ink-2);
-  cursor: pointer;
-  font-weight: 700;
-  padding: 0.7rem 0.9rem;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.confirmation .danger {
-  background: var(--color-danger);
-  border-color: var(--color-danger);
-  color: var(--color-accent-ink);
-}
-.empty-game {
-  align-items: center;
+.game-view-wrapper {
   display: flex;
   flex-direction: column;
-  padding: var(--space-3xl) var(--space-md);
-  text-align: center;
+  gap: var(--space-sm);
+  width: 100%;
+  position: relative;
 }
-.empty-game .empty-stone {
-  background: var(--color-stone-black);
+
+/* iOS Dynamic Toast Banner */
+.ios-toast {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ios-warning);
+  color: var(--color-warning-ink);
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  border: 1px solid rgba(255, 149, 0, 0.35);
+  box-shadow: var(--shadow-subtle);
+}
+
+.toast-dot {
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
-  height: 3rem;
-  width: 3rem;
+  background: var(--ios-warning);
 }
-.empty-game h1 {
-  margin: var(--space-md) 0 0;
+
+/* Layout */
+.game-main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 21rem);
+  gap: var(--space-md);
+  align-items: start;
 }
-.empty-game p {
-  color: var(--color-muted);
+
+.board-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
 }
-.empty-game a {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-accent-ink);
+
+.desktop-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
 }
+
+/* Mobile Drawer Tabs */
+.mobile-drawer-tabs {
+  display: none;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin-top: 0.2rem;
+}
+
+.tab-btn {
+  background: var(--ios-bg-secondary);
+  border: 1px solid var(--ios-border);
+  border-radius: var(--radius-pill);
+  padding: 0.45rem 1rem;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--ios-secondary-label);
+}
+
+.tab-btn.active {
+  background: var(--ios-tint);
+  color: #ffffff;
+  border-color: var(--ios-tint);
+}
+
+.tab-btn.ai-tab.active {
+  background: var(--ios-accent);
+  border-color: var(--ios-accent);
+}
+
+/* Mobile Bottom Sheet */
+.mobile-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-top: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-modal);
+  padding: 0.8rem 1rem 2rem;
+  z-index: 900;
+  max-height: 60vh;
+  overflow-y: auto;
+  animation: sheet-up 280ms var(--ease-spring) both;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  position: relative;
+}
+
+.sheet-grabber {
+  width: 2.5rem;
+  height: 0.25rem;
+  background: var(--ios-quaternary-label);
+  border-radius: var(--radius-pill);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sheet-close-btn {
+  margin-left: auto;
+  background: rgba(125, 125, 125, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ios-label);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* iOS Action Sheet for Resign */
+.ios-action-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-sm);
+  z-index: 1000;
+  animation: fade-in 200ms var(--ease-ios) both;
+}
+
+.ios-action-sheet {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  animation: sheet-spring 300ms var(--ease-spring) both;
+}
+
+.action-sheet-content {
+  background: var(--ios-card-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1rem 0.5rem;
+  text-align: center;
+  border: 1px solid var(--ios-border);
+}
+
+.action-sheet-content h3 {
+  font-size: var(--text-md);
+  margin-bottom: 0.3rem;
+}
+
+.action-sheet-content p {
+  font-size: var(--text-xs);
+  color: var(--ios-secondary-label);
+  margin-bottom: 1rem;
+}
+
+.action-sheet-cancel {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.action-sheet-btn {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-weight: 700;
+  border: none;
+  background: rgba(125, 125, 125, 0.08);
+}
+
+.action-sheet-btn.danger {
+  color: var(--ios-danger);
+  border-top: 1px solid var(--ios-separator);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.action-sheet-btn.cancel {
+  background: var(--ios-card-solid);
+  color: var(--ios-tint);
+  border-radius: var(--radius-md);
+}
+
+/* Empty State */
+.empty-state-card {
+  max-width: 28rem;
+  margin: 4rem auto;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.empty-icon-ring {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: rgba(125, 125, 125, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.empty-stone {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #1c1c1e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ios-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--ios-tint);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
 .visually-hidden {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -294,54 +520,33 @@ async function loadSgf(event: Event): Promise<void> {
   white-space: nowrap;
   width: 1px;
 }
-@keyframes modal-enter {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
+
+/* Animations */
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
-@media (hover: hover) and (pointer: fine) {
-  .confirmation button:hover,
-  .empty-game a:hover {
-    border-color: var(--color-accent);
-  }
+
+@keyframes sheet-spring {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive */
 @media (max-width: 58rem) {
-  .game-layout {
+  .game-main-layout {
     grid-template-columns: minmax(0, 1fr);
   }
-  .board-area :deep(.board-frame) {
-    margin-inline: auto;
+  .desktop-sidebar {
+    display: none;
   }
-  .game-sidebar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 42rem) {
-  .game-sidebar {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 34rem) {
-  .board-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: var(--space-2xs);
-  }
-  .confirmation {
-    padding: var(--space-lg);
-  }
-  .confirmation div {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .confirmation button {
-    width: 100%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .confirmation {
-    animation: none;
+  .mobile-drawer-tabs {
+    display: flex;
   }
 }
 </style>
