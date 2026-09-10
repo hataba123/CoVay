@@ -1,256 +1,477 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useAudioHaptics } from '@/composables/useAudioHaptics'
+
+const { playStoneSound, playTapSound, triggerHaptic } = useAudioHaptics()
+
+// Interactive interactive mini demo board points (5x5)
+const demoStones = ref<{ [key: number]: 'black' | 'white' }>({
+  2: 'black',
+  8: 'white',
+  12: 'black',
+  14: 'white',
+  18: 'black',
+})
+
+function tapDemoPoint(point: number) {
+  if (demoStones.value[point]) {
+    delete demoStones.value[point]
+  } else {
+    // Alternating placement
+    const count = Object.keys(demoStones.value).length
+    demoStones.value[point] = count % 2 === 0 ? 'black' : 'white'
+  }
+  playStoneSound()
+  triggerHaptic('light')
+}
+</script>
+
 <template>
-  <section class="home-page">
-    <div class="home-hero">
+  <div class="home-container">
+    <!-- Hero Section -->
+    <section class="home-hero">
       <div class="hero-copy">
-        <p class="eyebrow">Không gian chơi cờ trên trình duyệt</p>
-        <h1>Một nước đi.<br /><em>Một khoảng lặng.</em></h1>
-        <p class="description">
-          Chơi cùng bạn bè trên một thiết bị hoặc đối đầu với bot. Tập trung vào thế cờ, để Cờ Vây
-          lo phần còn lại.
+        <div class="hero-badge">
+          <span class="badge-dot" />
+          <span>Trải nghiệm Cờ Vây chuẩn iOS</span>
+        </div>
+        <h1 class="hero-title">
+          Một nước đi.<br />
+          <span class="gradient-text">Một khoảng lặng.</span>
+        </h1>
+        <p class="hero-desc">
+          Không gian cờ vây tối giản, âm thanh gõ gỗ chân thực, phản hồi xúc giác tinh tế và trí tuệ
+          nhân tạo KataGo đồng hành cùng bạn.
         </p>
+
         <div class="hero-actions">
-          <RouterLink class="primary-action" to="/new-game"
-            >Tạo ván mới <span aria-hidden="true">↗</span></RouterLink
-          >
-          <RouterLink class="text-action" to="/saved-games">Xem ván đã lưu</RouterLink>
+          <RouterLink class="ios-btn-primary" to="/new-game" @click="playTapSound">
+            <span>Bắt đầu ván cờ</span>
+            <span class="arrow-icon">↗</span>
+          </RouterLink>
+
+          <RouterLink class="ios-btn-secondary" to="/saved-games" @click="playTapSound">
+            <span>Ván đã lưu</span>
+          </RouterLink>
         </div>
       </div>
-      <div class="hero-board" aria-hidden="true">
-        <div class="board-grid">
-          <span
-            v-for="point in 25"
-            :key="point"
-            :class="{ stone: [3, 8, 13, 19, 23].includes(point) }"
-          />
+
+      <!-- Interactive Tactile Mini Goban -->
+      <div class="hero-board-wrapper">
+        <div class="mini-goban ios-card" aria-label="Bàn cờ vây tương tác thử">
+          <div class="mini-grid">
+            <button
+              v-for="point in 25"
+              :key="point"
+              class="grid-point"
+              type="button"
+              :aria-label="`Điểm ${point}`"
+              @click="tapDemoPoint(point)"
+            >
+              <span v-if="demoStones[point]" class="mini-stone" :class="demoStones[point]" />
+            </button>
+          </div>
+          <div class="mini-goban-footer">
+            <span class="board-hint">Chạm để thử âm thanh gõ cờ</span>
+            <span class="wood-tag">SHIN-KAYA WOOD</span>
+          </div>
         </div>
-        <p>THẾ CỜ · TĨNH LẶNG</p>
       </div>
-    </div>
-    <section class="rules">
-      <div class="rules-heading">
-        <span class="section-number">01</span>
+    </section>
+
+    <!-- Apple-style Feature Cards -->
+    <section class="features-section">
+      <div class="feature-card ios-card">
+        <div class="feat-icon-bg">
+          <span class="feat-icon">🪵</span>
+        </div>
+        <h3>Âm thanh & Xúc giác</h3>
+        <p>
+          Mô phỏng chân thực tiếng đá Slate gõ lên gỗ Shin-Kaya bằng Web Audio API, kết hợp phản hồi
+          rung Taptic.
+        </p>
+      </div>
+
+      <div class="feature-card ios-card">
+        <div class="feat-icon-bg">
+          <span class="feat-icon">✨</span>
+        </div>
+        <h3>Trí tuệ nhân tạo KataGo</h3>
+        <p>
+          Tích hợp bot nhiều cấp độ và engine KataGo hỗ trợ phân tích tỷ lệ thắng và nước đi tối ưu
+          theo thời gian thực.
+        </p>
+      </div>
+
+      <div class="feature-card ios-card">
+        <div class="feat-icon-bg">
+          <span class="feat-icon">📱</span>
+        </div>
+        <h3>Tối ưu cho iPhone</h3>
+        <p>
+          Giao diện kính mờ Liquid Glass, bố cục thân thiện với thao tác ngón tay cái và hỗ trợ cài
+          đặt chơi offline PWA.
+        </p>
+      </div>
+    </section>
+
+    <!-- Essential Rules Section -->
+    <section class="rules-section ios-card">
+      <div class="rules-header">
+        <span class="rules-eyebrow">HƯỚNG DẪN NHANH</span>
         <h2>Luật chơi cơ bản</h2>
       </div>
-      <ul>
-        <li><span>01</span>Đen đi trước, đặt quân tại giao điểm trống.</li>
-        <li><span>02</span>Nhóm quân hết khí sẽ bị bắt khỏi bàn cờ.</li>
-        <li><span>03</span>Không được đi tự sát hoặc lặp lại trạng thái ngay trước đó (Ko).</li>
-        <li><span>04</span>Hai lần bỏ lượt liên tiếp sẽ chuyển sang xác nhận điểm số.</li>
-      </ul>
+
+      <div class="rules-grid">
+        <div class="rule-box">
+          <span class="rule-index">01</span>
+          <h4>Lượt đi</h4>
+          <p>Quân Đen đi trước, đặt quân tại các giao điểm trống của bàn cờ.</p>
+        </div>
+
+        <div class="rule-box">
+          <span class="rule-index">02</span>
+          <h4>Khí & Bắt quân</h4>
+          <p>Nhóm quân bị đối phương bao vây hết các khí liền kề sẽ bị nhấc khỏi bàn.</p>
+        </div>
+
+        <div class="rule-box">
+          <span class="rule-index">03</span>
+          <h4>Luật Ko (Tranh chấp)</h4>
+          <p>Không được đi nước cờ lập tức lặp lại nguyên trạng bàn cờ ở lượt trước đó.</p>
+        </div>
+
+        <div class="rule-box">
+          <span class="rule-index">04</span>
+          <h4>Kết thúc ván</h4>
+          <p>Hai bên liên tiếp bỏ lượt sẽ chuyển sang giai đoạn xác nhận điểm số diện tích.</p>
+        </div>
+      </div>
     </section>
-  </section>
+  </div>
 </template>
 
 <style scoped>
-.home-page {
-  display: grid;
-  gap: clamp(var(--space-2xl), 9vw, var(--space-3xl));
-}
-.home-hero {
-  align-items: center;
-  display: grid;
-  gap: clamp(var(--space-xl), 8vw, var(--space-3xl));
-  grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
-  min-height: min(50rem, 68svh);
-}
-.hero-copy {
-  max-width: 42rem;
-}
-.eyebrow {
-  color: var(--color-accent-strong);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.12em;
-  margin: 0 0 var(--space-md);
-  text-transform: uppercase;
-}
-h1 {
-  color: var(--color-ink);
-  font-size: var(--text-display);
-  margin: 0;
-  max-width: 12ch;
-}
-h1 em {
-  color: var(--color-ink);
-  font-style: normal;
-}
-.description {
-  color: var(--color-ink-2);
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  line-height: 1.6;
-  margin: var(--space-lg) 0 var(--space-xl);
-  max-width: 33rem;
-}
-.hero-actions {
-  align-items: center;
+.home-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: clamp(var(--space-xl), 6vw, var(--space-3xl));
+  max-width: var(--content-max);
+  margin: 0 auto;
 }
-.primary-action {
-  align-items: center;
-  background: var(--color-accent);
-  border-radius: var(--radius-sm);
-  color: var(--color-accent-ink);
-  display: inline-flex;
-  font-weight: 750;
-  gap: 0.65rem;
-  padding: 0.9rem 1.1rem;
-  text-decoration: none;
-  min-height: var(--control-height);
-}
-.primary-action span {
-  font-size: 1.1rem;
-}
-.text-action {
-  align-items: center;
-  color: var(--color-ink-2);
-  display: inline-flex;
-  font-size: var(--text-sm);
-  font-weight: 700;
-  min-height: var(--control-height);
-  text-decoration: none;
-}
-@media (hover: hover) and (pointer: fine) {
-  .primary-action:hover {
-    background: var(--color-accent-strong);
-  }
-  .text-action:hover {
-    color: var(--color-accent-strong);
-  }
-}
-.hero-board {
-  background: var(--color-board-frame);
-  border: 0.7rem solid var(--color-board-frame-deep);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lifted);
-  padding: clamp(var(--space-md), 4vw, var(--space-xl));
-  transform: rotate(2.5deg);
-}
-.board-grid {
-  aspect-ratio: 1;
-  background-color: var(--color-board-mid);
-  background-image:
-    linear-gradient(var(--color-board-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-board-line) 1px, transparent 1px);
-  background-size: 25% 25%;
-  border: 1px solid var(--color-board-line);
+
+/* Hero Section */
+.home-hero {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 0;
-}
-.board-grid span {
-  align-self: center;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  justify-self: center;
-  width: 52%;
-}
-.board-grid span.stone {
-  background: var(--color-stone-black);
-  box-shadow: var(--shadow-stone);
-}
-.board-grid span:nth-child(8),
-.board-grid span:nth-child(19) {
-  background: var(--color-stone-white);
-  box-shadow:
-    inset -0.12rem -0.12rem 0.15rem var(--color-stone-white-shadow),
-    var(--shadow-stone-soft);
-}
-.hero-board p {
-  color: var(--color-paper-2);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  margin: var(--space-sm) 0 0;
-  text-align: right;
-}
-.rules {
-  border-top: 1px solid var(--color-rule);
-  display: grid;
-  gap: var(--space-xl);
-  grid-template-columns: minmax(12rem, 0.65fr) minmax(0, 1.35fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+  gap: clamp(var(--space-lg), 6vw, var(--space-2xl));
+  align-items: center;
   padding-top: var(--space-md);
 }
-.rules-heading {
-  align-content: start;
-  display: grid;
-  gap: var(--space-2xs);
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
-.section-number,
-.rules li span {
-  color: var(--color-accent-strong);
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(0, 122, 255, 0.08);
+  color: var(--ios-tint);
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  width: fit-content;
+}
+
+.badge-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--ios-tint);
+}
+
+.hero-title {
+  font-size: var(--text-display);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  color: var(--ios-label);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--ios-label) 30%, var(--ios-secondary-label) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-desc {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.55;
+  color: var(--ios-secondary-label);
+  max-width: 32rem;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.ios-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--ios-tint);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: var(--text-md);
+  text-decoration: none;
+  box-shadow: 0 4px 18px var(--ios-tint-glow);
+}
+
+.arrow-icon {
+  font-size: 1.1rem;
+}
+
+.ios-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius-pill);
+  background: var(--ios-bg-secondary);
+  color: var(--ios-label);
+  font-weight: 600;
+  font-size: var(--text-md);
+  text-decoration: none;
+  border: 1px solid var(--ios-border);
+}
+
+/* Mini Goban */
+.hero-board-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mini-goban {
+  width: 100%;
+  max-width: 24rem;
+  aspect-ratio: 1;
+  background: url(#frame-bevel), linear-gradient(135deg, #fbe6b8, #e9bf7c 65%, #cc9950);
+  border: 12px solid #704414;
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(50, 25, 5, 0.35);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  aspect-ratio: 1;
+  background-image:
+    linear-gradient(rgba(58, 36, 14, 0.75) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58, 36, 14, 0.75) 1px, transparent 1px);
+  background-size: 25% 25%;
+  border: 1px solid rgba(58, 36, 14, 0.75);
+}
+
+.grid-point {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.mini-stone {
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  animation: stone-drop 200ms var(--ease-spring) both;
+}
+
+.mini-stone.black {
+  background: radial-gradient(circle at 32% 28%, #4f535a 0%, #151618 60%, #000000 100%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+}
+
+.mini-stone.white {
+  background: radial-gradient(circle at 32% 28%, #ffffff 0%, #edf0f5 65%, #c8ced8 100%);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+
+.mini-goban-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+}
+
+.board-hint {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #573412;
+}
+
+.wood-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #704414;
+}
+
+/* Features */
+.features-section {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.feature-card {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.feat-icon-bg {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-md);
+  background: rgba(125, 125, 125, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+}
+
+.feat-icon {
+  font-size: 1.5rem;
+}
+
+.feature-card h3 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--ios-label);
+}
+
+.feature-card p {
+  font-size: var(--text-sm);
+  color: var(--ios-secondary-label);
+  line-height: 1.5;
+}
+
+/* Rules Section */
+.rules-section {
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.rules-eyebrow {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--ios-tint);
+  letter-spacing: 0.1em;
 }
-.rules h2 {
-  margin: 0;
+
+.rules-header h2 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--ios-label);
+  margin-top: 0.2rem;
 }
-.rules ul {
+
+.rules-grid {
   display: grid;
-  gap: 0;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.rules li {
-  align-items: baseline;
-  border-bottom: 1px solid var(--color-rule);
-  color: var(--color-ink-2);
-  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-md);
-  grid-template-columns: 2rem minmax(0, 1fr);
+}
+
+.rule-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.rule-index {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ios-tint);
+}
+
+.rule-box h4 {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--ios-label);
+}
+
+.rule-box p {
+  font-size: var(--text-xs);
+  color: var(--ios-secondary-label);
   line-height: 1.5;
-  padding: var(--space-sm) 0;
 }
-@media (max-width: 52rem) {
+
+@keyframes stone-drop {
+  from {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 58rem) {
   .home-hero {
-    grid-template-columns: minmax(0, 1fr);
-    min-height: auto;
+    grid-template-columns: 1fr;
   }
-  .hero-board {
-    margin-inline: auto;
-    max-width: 32rem;
-    width: 100%;
-    transform: rotate(1deg);
+  .features-section {
+    grid-template-columns: 1fr;
+  }
+  .rules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (max-width: 40rem) {
-  .home-page {
-    gap: var(--space-2xl);
-  }
-  h1 {
-    font-size: clamp(2.65rem, 14vw, 4.15rem);
-    max-width: 11ch;
-  }
-  .description {
-    font-size: var(--text-md);
-    margin-block: var(--space-md) var(--space-lg);
+
+@media (max-width: 34rem) {
+  .rules-grid {
+    grid-template-columns: 1fr;
   }
   .hero-actions {
+    flex-direction: column;
     align-items: stretch;
-    display: grid;
-    gap: var(--space-xs);
   }
-  .primary-action,
-  .text-action {
-    justify-content: center;
-    text-align: center;
-    white-space: nowrap;
-  }
-  .text-action {
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-sm);
-    padding: 0.8rem 1rem;
-  }
-  .hero-board {
-    border-width: 0.5rem;
-    padding: var(--space-sm);
-  }
-  .rules {
-    gap: var(--space-md);
-    grid-template-columns: 1fr;
+  .ios-btn-primary,
+  .ios-btn-secondary {
+    width: 100%;
   }
 }
 </style>

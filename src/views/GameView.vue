@@ -104,11 +104,7 @@ async function loadSgf(event: Event): Promise<void> {
     </transition>
 
     <!-- Victory Dialog Modal -->
-    <GameResultDialog
-      v-if="game.result"
-      :result="game.result"
-      @restart="restart"
-    />
+    <GameResultDialog v-if="game.result" :result="game.result" @restart="restart" />
 
     <!-- Main Board Area & Desktop Sidebar -->
     <div class="game-main-layout">
@@ -149,10 +145,7 @@ async function loadSgf(event: Event): Promise<void> {
       <!-- Desktop Sidebar -->
       <aside class="desktop-sidebar">
         <MoveHistory :moves="game.moveHistory" />
-        <KataGoAnalysisPanel
-          v-if="gameStore.kataGoAnalysis"
-          :analysis="gameStore.kataGoAnalysis"
-        />
+        <KataGoAnalysisPanel v-if="gameStore.kataGoAnalysis" :analysis="gameStore.kataGoAnalysis" />
       </aside>
     </div>
 
@@ -179,26 +172,14 @@ async function loadSgf(event: Event): Promise<void> {
     </div>
 
     <!-- Mobile Expandable Bottom Sheet for History/Analysis -->
-    <div
-      v-if="mobileActiveTab !== 'game'"
-      class="mobile-bottom-sheet ios-glass"
-    >
+    <div v-if="mobileActiveTab !== 'game'" class="mobile-bottom-sheet ios-glass">
       <div class="sheet-header">
         <div class="sheet-grabber" aria-hidden="true" />
-        <button
-          class="sheet-close-btn"
-          type="button"
-          @click="mobileActiveTab = 'game'"
-        >
-          ✕
-        </button>
+        <button class="sheet-close-btn" type="button" @click="mobileActiveTab = 'game'">✕</button>
       </div>
 
       <div class="sheet-content">
-        <MoveHistory
-          v-if="mobileActiveTab === 'history'"
-          :moves="game.moveHistory"
-        />
+        <MoveHistory v-if="mobileActiveTab === 'history'" :moves="game.moveHistory" />
         <KataGoAnalysisPanel
           v-if="mobileActiveTab === 'analysis' && gameStore.kataGoAnalysis"
           :analysis="gameStore.kataGoAnalysis"
@@ -217,20 +198,12 @@ async function loadSgf(event: Event): Promise<void> {
         <div class="action-sheet-content">
           <h3 id="resign-title">Đầu hàng ván cờ?</h3>
           <p>Bạn có chắc muốn đầu hàng và chấp nhận thua ván cờ này?</p>
-          <button
-            class="action-sheet-btn danger"
-            type="button"
-            @click="confirmResign"
-          >
+          <button class="action-sheet-btn danger" type="button" @click="confirmResign">
             Đầu hàng
           </button>
         </div>
         <div class="action-sheet-cancel">
-          <button
-            class="action-sheet-btn cancel"
-            type="button"
-            @click="pendingResign = false"
-          >
+          <button class="action-sheet-btn cancel" type="button" @click="pendingResign = false">
             Hủy bỏ
           </button>
         </div>
@@ -245,9 +218,7 @@ async function loadSgf(event: Event): Promise<void> {
     </div>
     <h2>Chưa có ván cờ</h2>
     <p>Hãy tạo một ván mới để bắt đầu trải nghiệm cờ vây mượt mà.</p>
-    <RouterLink class="ios-primary-btn" to="/new-game">
-      Tạo ván mới ↗
-    </RouterLink>
+    <RouterLink class="ios-primary-btn" to="/new-game"> Tạo ván mới ↗ </RouterLink>
   </section>
 
   <!-- Hidden SGF File Input -->
@@ -523,18 +494,32 @@ async function loadSgf(event: Event): Promise<void> {
 
 /* Animations */
 @keyframes sheet-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes sheet-spring {
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Responsive */

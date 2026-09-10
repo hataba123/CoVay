@@ -1,216 +1,335 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAudioHaptics } from '@/composables/useAudioHaptics'
 
-const navigationItems = [
-  { label: 'Trang chủ', to: '/' },
-  { label: 'Ván mới', to: '/new-game' },
-  { label: 'Ván đã lưu', to: '/saved-games' },
-  { label: 'Cài đặt', to: '/settings' },
+const route = useRoute()
+const { playTapSound, triggerHaptic } = useAudioHaptics()
+
+const navItems = [
+  { label: 'Trang chủ', to: '/', icon: 'home' },
+  { label: 'Bàn cờ', to: '/game', icon: 'board' },
+  { label: 'Ván mới', to: '/new-game', icon: 'plus' },
+  { label: 'Ván đã lưu', to: '/saved-games', icon: 'archive' },
+  { label: 'Cài đặt', to: '/settings', icon: 'gear' },
 ]
 
-const isMenuOpen = ref(false)
+function onTabClick() {
+  playTapSound()
+  triggerHaptic('light')
+}
 </script>
 
 <template>
   <div class="app-shell">
-    <header class="app-header">
-      <RouterLink class="brand" to="/">
-        <span class="brand-mark" aria-hidden="true"><span /></span>
-        <span class="brand-lockup"><strong>Cờ Vây</strong><small>Play with intention</small></span>
-      </RouterLink>
-      <button
-        class="menu-toggle"
-        type="button"
-        :aria-expanded="isMenuOpen"
-        aria-controls="primary-navigation"
-        @click="isMenuOpen = !isMenuOpen"
-      >
-        <span>Menu</span><i aria-hidden="true" />
-      </button>
-      <nav id="primary-navigation" :class="{ open: isMenuOpen }" aria-label="Điều hướng chính">
-        <RouterLink
-          v-for="item in navigationItems"
-          :key="item.to"
-          :to="item.to"
-          @click="isMenuOpen = false"
-        >
-          {{ item.label }}
+    <!-- Apple Glass Top Bar -->
+    <header class="app-header ios-glass">
+      <div class="header-inner">
+        <RouterLink class="brand" to="/" @click="onTabClick">
+          <div class="brand-avatar" aria-hidden="true">
+            <span class="stone-icon black" />
+            <span class="stone-icon white" />
+          </div>
+          <div class="brand-lockup">
+            <strong>Cờ Vây</strong>
+            <span class="brand-sub">Zen & Intention</span>
+          </div>
         </RouterLink>
-      </nav>
+
+        <!-- Desktop Navigation Pill Bar -->
+        <nav class="desktop-nav" aria-label="Điều hướng chính">
+          <RouterLink
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="nav-link"
+            @click="onTabClick"
+          >
+            {{ item.label }}
+          </RouterLink>
+        </nav>
+      </div>
     </header>
 
-    <main class="app-content"><slot /></main>
+    <!-- Main Content Area -->
+    <main class="app-content">
+      <slot />
+    </main>
+
+    <!-- iPhone Native-style Bottom Tab Bar (Mobile only) -->
+    <nav class="ios-tab-bar ios-glass" aria-label="Thanh điều hướng di động">
+      <RouterLink
+        v-for="item in navItems"
+        :key="`tab-${item.to}`"
+        :to="item.to"
+        class="tab-item"
+        :class="{ active: route.path === item.to }"
+        @click="onTabClick"
+      >
+        <!-- Icons -->
+        <div class="tab-icon-wrapper" aria-hidden="true">
+          <!-- Home Icon -->
+          <svg
+            v-if="item.icon === 'home'"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <!-- Board Icon -->
+          <svg
+            v-else-if="item.icon === 'board'"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <line x1="3" y1="9" x2="21" y2="9" />
+            <line x1="3" y1="15" x2="21" y2="15" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+            <line x1="15" y1="3" x2="15" y2="21" />
+          </svg>
+          <!-- Plus Icon -->
+          <svg
+            v-else-if="item.icon === 'plus'"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="16" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+          <!-- Archive Icon -->
+          <svg
+            v-else-if="item.icon === 'archive'"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          <!-- Settings Icon -->
+          <svg
+            v-else-if="item.icon === 'gear'"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+            />
+          </svg>
+        </div>
+        <span class="tab-label">{{ item.label }}</span>
+      </RouterLink>
+    </nav>
   </div>
 </template>
 
 <style scoped>
 .app-shell {
-  background: var(--color-paper);
+  background: var(--ios-bg);
   min-height: 100svh;
-}
-.app-header {
-  align-items: center;
   display: flex;
-  gap: var(--space-lg);
+  flex-direction: column;
+}
+
+/* Glass Header */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  border-bottom: 1px solid var(--ios-separator);
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin: 0 auto;
   max-width: var(--content-max);
-  padding: var(--space-md) var(--page-gutter);
-  position: relative;
+  margin: 0 auto;
+  padding: 0.65rem var(--page-gutter);
 }
+
 .brand {
+  display: flex;
   align-items: center;
-  color: var(--color-ink);
-  display: inline-flex;
-  gap: var(--space-xs);
+  gap: 0.65rem;
   text-decoration: none;
-  white-space: nowrap;
-  min-height: 2.75rem;
+  color: var(--ios-label);
 }
-.brand-mark {
+
+.brand-avatar {
+  display: flex;
   align-items: center;
-  background: var(--color-board-frame);
-  border: 2px solid var(--color-accent);
-  border-radius: 50%;
-  display: inline-flex;
-  height: 2.35rem;
   justify-content: center;
   position: relative;
-  width: 2.35rem;
-}
-.brand-mark::before,
-.brand-mark::after,
-.brand-mark span {
-  background: var(--color-paper);
+  width: 2.2rem;
+  height: 2.2rem;
   border-radius: 50%;
-  content: '';
-  height: 0.28rem;
+  background: linear-gradient(135deg, #eec988, #be8b46);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.brand-avatar .stone-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
   position: absolute;
-  width: 0.28rem;
 }
-.brand-mark::before {
-  transform: translate(-0.34rem, -0.34rem);
+
+.brand-avatar .stone-icon.black {
+  background: #1c1c1e;
+  transform: translate(-0.25rem, -0.25rem);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-.brand-mark::after {
-  transform: translate(0.34rem, 0.34rem);
+
+.brand-avatar .stone-icon.white {
+  background: #ffffff;
+  transform: translate(0.25rem, 0.25rem);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
-.brand-mark span {
-  background: var(--color-accent);
-  transform: translate(0.34rem, -0.34rem);
-}
+
 .brand-lockup {
-  display: grid;
-  gap: 0.05rem;
+  display: flex;
+  flex-direction: column;
 }
+
 .brand-lockup strong {
   font-family: var(--font-display);
   font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.035em;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
-.brand-lockup small {
-  color: var(--color-muted);
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.12em;
+
+.brand-sub {
+  font-size: 0.65rem;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ios-secondary-label);
 }
-nav {
-  background: var(--color-paper-2);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-pill);
+
+/* Desktop Nav Pills */
+.desktop-nav {
   display: flex;
-  gap: var(--space-2xs);
-  padding: var(--space-3xs);
-}
-nav a {
   align-items: center;
+  gap: 0.3rem;
+  background: rgba(125, 125, 125, 0.08);
+  padding: 0.25rem;
   border-radius: var(--radius-pill);
-  color: var(--color-ink-2);
-  display: inline-flex;
+}
+
+.nav-link {
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-pill);
   font-size: var(--text-sm);
-  min-height: 2.75rem;
-  padding: 0.6rem 0.85rem;
+  font-weight: 600;
+  color: var(--ios-secondary-label);
   text-decoration: none;
-  white-space: nowrap;
+  transition: all var(--dur-instant) var(--ease-spring);
 }
-nav a.router-link-exact-active {
-  background: var(--color-paper-3);
-  color: var(--color-accent-strong);
+
+.nav-link:hover {
+  color: var(--ios-label);
 }
-.menu-toggle {
-  align-items: center;
-  background: var(--color-paper-2);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-pill);
-  color: var(--color-ink);
-  cursor: pointer;
-  display: none;
-  font-size: var(--text-sm);
-  font-weight: 700;
-  gap: var(--space-xs);
-  padding-inline: var(--space-sm);
-  white-space: nowrap;
+
+.nav-link.router-link-exact-active {
+  background: var(--ios-card-solid);
+  color: var(--ios-tint);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
-.menu-toggle i,
-.menu-toggle i::before {
-  background: currentColor;
-  content: '';
-  display: block;
-  height: 1px;
-  transition: transform var(--dur-short) var(--ease-out);
-  width: 1rem;
-}
-.menu-toggle i::before {
-  transform: translateY(0.3rem);
-}
-.menu-toggle[aria-expanded='true'] i {
-  transform: translateY(0.15rem) rotate(45deg);
-}
-.menu-toggle[aria-expanded='true'] i::before {
-  transform: rotate(-90deg);
-}
+
+/* Main Content */
 .app-content {
-  margin: 0 auto;
+  flex: 1;
   max-width: var(--content-max);
-  padding: clamp(var(--space-xl), 6vw, var(--space-2xl)) var(--page-gutter) var(--space-3xl);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-md) var(--page-gutter) calc(var(--space-2xl) + var(--sab));
 }
-@media (hover: hover) and (pointer: fine) {
-  nav a:hover {
-    background: var(--color-paper-3);
-    color: var(--color-accent-strong);
-  }
+
+/* iPhone Native Bottom Tab Bar */
+.ios-tab-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(3.6rem + var(--sab));
+  padding-bottom: var(--sab);
+  background: var(--glass-dock-bg);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  border-top: 1px solid var(--ios-separator);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+  z-index: 850;
+  justify-content: space-around;
+  align-items: center;
 }
-@media (max-width: 46rem) {
-  .menu-toggle {
-    display: inline-flex;
-  }
-  nav {
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: var(--ios-tertiary-label);
+  flex: 1;
+  height: 100%;
+  transition: color var(--dur-instant) var(--ease-ios);
+}
+
+.tab-item.active {
+  color: var(--ios-tint);
+}
+
+.tab-icon-wrapper svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  stroke: currentColor;
+}
+
+.tab-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 48rem) {
+  .desktop-nav {
     display: none;
-    inset: calc(100% - var(--space-2xs)) var(--page-gutter) auto;
-    padding: var(--space-2xs);
-    position: absolute;
-    z-index: 100;
   }
-  nav.open {
-    display: grid;
-  }
-  nav a {
-    padding: 0.75rem var(--space-sm);
+  .ios-tab-bar {
+    display: flex;
   }
   .app-content {
-    padding-top: var(--space-xl);
-  }
-}
-@media (max-width: 25rem) {
-  .brand-lockup small {
-    display: none;
-  }
-  .brand-mark {
-    height: 2.1rem;
-    width: 2.1rem;
+    padding-bottom: calc(4.8rem + var(--sab));
   }
 }
 </style>

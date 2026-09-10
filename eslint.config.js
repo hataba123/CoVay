@@ -8,10 +8,14 @@ export default tseslint.config(
   {
     languageOptions: {
       globals: {
+        AudioContext: 'readonly',
         Blob: 'readonly',
         Event: 'readonly',
+        HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
         URL: 'readonly',
+        navigator: 'readonly',
       },
     },
   },

@@ -123,12 +123,7 @@ const viewBox = computed(() => {
 <template>
   <div class="board-container" :class="{ 'is-disabled': disabled }">
     <div class="board-frame">
-      <svg
-        class="go-board"
-        :viewBox="viewBox"
-        role="grid"
-        aria-label="Bàn cờ vây gỗ Shin-Kaya"
-      >
+      <svg class="go-board" :viewBox="viewBox" role="grid" aria-label="Bàn cờ vây gỗ Shin-Kaya">
         <defs>
           <!-- Goban wood grain with warm honey undertones -->
           <radialGradient id="kaya-wood" cx="45%" cy="40%" r="70%">
@@ -168,8 +163,18 @@ const viewBox = computed(() => {
 
           <!-- Filter for stone 3D drop shadow -->
           <filter id="stone-shadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0.04" dy="0.07" stdDeviation="0.05" flood-color="rgba(20, 10, 4, 0.45)" />
-            <feDropShadow dx="0.01" dy="0.02" stdDeviation="0.02" flood-color="rgba(0, 0, 0, 0.35)" />
+            <feDropShadow
+              dx="0.04"
+              dy="0.07"
+              stdDeviation="0.05"
+              flood-color="rgba(20, 10, 4, 0.45)"
+            />
+            <feDropShadow
+              dx="0.01"
+              dy="0.02"
+              stdDeviation="0.02"
+              flood-color="rgba(0, 0, 0, 0.35)"
+            />
           </filter>
         </defs>
 
@@ -353,18 +358,8 @@ const viewBox = computed(() => {
 
             <!-- Last Move Golden Ring Indicator -->
             <g v-if="isLastMove(rowIndex, columnIndex)" class="last-move-indicator">
-              <circle
-                class="last-move-ring"
-                :cx="columnIndex"
-                :cy="rowIndex"
-                r="0.16"
-              />
-              <circle
-                class="last-move-dot"
-                :cx="columnIndex"
-                :cy="rowIndex"
-                r="0.06"
-              />
+              <circle class="last-move-ring" :cx="columnIndex" :cy="rowIndex" r="0.16" />
+              <circle class="last-move-dot" :cx="columnIndex" :cy="rowIndex" r="0.06" />
             </g>
           </g>
         </g>
@@ -399,7 +394,9 @@ const viewBox = computed(() => {
     inset 0 -2px 4px rgba(0, 0, 0, 0.4);
   padding: 4px;
   box-sizing: border-box;
-  transition: transform var(--dur-short) var(--ease-spring), box-shadow var(--dur-short) var(--ease-ios);
+  transition:
+    transform var(--dur-short) var(--ease-spring),
+    box-shadow var(--dur-short) var(--ease-ios);
 }
 
 .go-board {
@@ -565,7 +562,8 @@ const viewBox = computed(() => {
 }
 
 @keyframes pulse-ring {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.92;
   }

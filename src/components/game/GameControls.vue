@@ -58,7 +58,15 @@ function handleAction(action: () => void, hapticType: 'light' | 'medium' = 'ligh
         :disabled="game.pastStates.length === 0 || game.settings.mode !== 'local'"
         @click="handleAction(() => emit('undo'))"
       >
-        <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          class="dock-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M3 7v6h6" />
           <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
         </svg>
@@ -72,7 +80,15 @@ function handleAction(action: () => void, hapticType: 'light' | 'medium' = 'ligh
         :disabled="game.status !== 'playing' || interactionDisabled"
         @click="handleAction(() => emit('pass'), 'medium')"
       >
-        <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          class="dock-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10" />
           <polyline points="12 6 12 12 16 14" />
         </svg>
@@ -87,7 +103,15 @@ function handleAction(action: () => void, hapticType: 'light' | 'medium' = 'ligh
         :disabled="game.futureStates.length === 0 || game.settings.mode !== 'local'"
         @click="handleAction(() => emit('redo'))"
       >
-        <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          class="dock-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M21 7v6h-6" />
           <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
         </svg>
@@ -103,8 +127,18 @@ function handleAction(action: () => void, hapticType: 'light' | 'medium' = 'ligh
         :disabled="game.status !== 'playing' || interactionDisabled || kataGoAnalyzing"
         @click="handleAction(() => emit('analyzeKatago'))"
       >
-        <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+        <svg
+          class="dock-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+          />
         </svg>
         <span class="dock-label">{{ kataGoAnalyzing ? 'Đang soi…' : 'KataGo' }}</span>
       </button>
@@ -117,7 +151,15 @@ function handleAction(action: () => void, hapticType: 'light' | 'medium' = 'ligh
         :disabled="game.status !== 'playing' || interactionDisabled"
         @click="handleAction(() => emit('resign'), 'medium')"
       >
-        <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          class="dock-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
           <line x1="4" y1="22" x2="4" y2="15" />
         </svg>
@@ -127,25 +169,13 @@ function handleAction(action: () => void, hapticType: 'light' | 'medium' = 'ligh
 
     <!-- Secondary Utilities -->
     <div class="utilities-bar">
-      <button
-        class="util-btn"
-        type="button"
-        @click="handleAction(() => emit('exportSgf'))"
-      >
+      <button class="util-btn" type="button" @click="handleAction(() => emit('exportSgf'))">
         <span>Xuất SGF</span>
       </button>
-      <button
-        class="util-btn"
-        type="button"
-        @click="handleAction(() => emit('importSgf'))"
-      >
+      <button class="util-btn" type="button" @click="handleAction(() => emit('importSgf'))">
         <span>Nhập SGF</span>
       </button>
-      <button
-        class="util-btn"
-        type="button"
-        @click="handleAction(() => emit('restart'))"
-      >
+      <button class="util-btn" type="button" @click="handleAction(() => emit('restart'))">
         <span>Ván mới</span>
       </button>
     </div>

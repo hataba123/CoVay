@@ -55,9 +55,7 @@ watch(
           <span class="move-num">{{ String(move.number).padStart(2, '0') }}</span>
           <span class="stone-icon" :class="move.color" aria-hidden="true" />
           <span class="move-coord">{{ move.label }}</span>
-          <span v-if="move.capturedStones" class="capture-pill">
-            +{{ move.capturedStones }}
-          </span>
+          <span v-if="move.capturedStones" class="capture-pill"> +{{ move.capturedStones }} </span>
         </li>
       </ol>
       <div v-else class="empty-state">

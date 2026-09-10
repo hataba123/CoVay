@@ -73,8 +73,10 @@
   --color-overlay: rgba(0, 0, 0, 0.42);
 
   /* Typography */
-  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Iowan Old Style', Georgia, serif;
-  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, -apple-system, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Iowan Old Style', Georgia, serif;
+  --font-body:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, -apple-system, sans-serif;
   --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
 
   /* Spacing */

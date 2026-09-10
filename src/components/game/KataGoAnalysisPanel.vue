@@ -49,7 +49,13 @@ const whiteWinratePercent = computed(() => 100 - blackWinratePercent.value)
     <div class="stats-grid">
       <div class="stat-box">
         <span class="stat-label">Chênh lệch điểm</span>
-        <span class="stat-val" :class="{ positive: (analysis.rootScoreLead ?? 0) > 0, negative: (analysis.rootScoreLead ?? 0) < 0 }">
+        <span
+          class="stat-val"
+          :class="{
+            positive: (analysis.rootScoreLead ?? 0) > 0,
+            negative: (analysis.rootScoreLead ?? 0) < 0,
+          }"
+        >
           {{ formatScore(analysis.rootScoreLead) }}
         </span>
       </div>

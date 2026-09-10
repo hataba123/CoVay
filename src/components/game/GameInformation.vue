@@ -23,10 +23,7 @@ const moveNumber = computed(() => props.game.moveHistory.length)
 <template>
   <section class="game-hud ios-glass" aria-label="Thông tin ván cờ">
     <!-- Black Player Capsule -->
-    <div
-      class="player-capsule black"
-      :class="{ 'is-turn': isBlackTurn }"
-    >
+    <div class="player-capsule black" :class="{ 'is-turn': isBlackTurn }">
       <div class="stone-avatar black-stone" aria-hidden="true" />
       <div class="player-details">
         <span class="player-name">{{ game.settings.blackPlayer.name }}</span>
@@ -61,10 +58,7 @@ const moveNumber = computed(() => props.game.moveHistory.length)
     </div>
 
     <!-- White Player Capsule -->
-    <div
-      class="player-capsule white"
-      :class="{ 'is-turn': isWhiteTurn }"
-    >
+    <div class="player-capsule white" :class="{ 'is-turn': isWhiteTurn }">
       <div class="capture-badge" title="Quân đối phương đã bắt">
         <span class="capture-icon" aria-hidden="true">⚔</span>
         <span class="capture-count">{{ game.captures.white }}</span>
@@ -248,7 +242,8 @@ const moveNumber = computed(() => props.game.moveHistory.length)
 }
 
 @keyframes ios-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.9);
     opacity: 0.8;
   }

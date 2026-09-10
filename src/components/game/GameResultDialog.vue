@@ -4,7 +4,7 @@ import type { GameResult } from '@/domain/models/game'
 import { useAudioHaptics } from '@/composables/useAudioHaptics'
 
 const props = defineProps<{ result: GameResult }>()
-const emit = defineEmits<{ restart: [] }>()
+defineEmits<{ restart: [] }>()
 
 const { playWinSound, triggerHaptic } = useAudioHaptics()
 
@@ -64,9 +64,7 @@ const subtitle = computed(() => {
       </p>
 
       <div class="action-buttons">
-        <RouterLink class="ios-btn primary" to="/new-game">
-          Ván mới ↗
-        </RouterLink>
+        <RouterLink class="ios-btn primary" to="/new-game"> Ván mới ↗ </RouterLink>
       </div>
     </section>
   </div>
@@ -218,8 +216,12 @@ const subtitle = computed(() => {
 }
 
 @keyframes backdrop-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes card-spring {

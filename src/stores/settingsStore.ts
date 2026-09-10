@@ -31,7 +31,10 @@ export const useSettingsStore = defineStore('settings', {
       const storedTheme = globalThis.localStorage.getItem(STORAGE_KEY_THEME)
       if (storedTheme === 'dark' || storedTheme === 'light') {
         this.setTheme(storedTheme)
-      } else if (globalThis.matchMedia && globalThis.matchMedia('(prefers-color-scheme: dark)').matches) {
+      } else if (
+        globalThis.matchMedia &&
+        globalThis.matchMedia('(prefers-color-scheme: dark)').matches
+      ) {
         this.setTheme('dark')
       } else {
         this.setTheme('light')
