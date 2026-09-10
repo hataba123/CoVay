@@ -1,37 +1,55 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Marquee Hero / Workbench / Long Document · nav: N5 · footer: none (app shell) · design-system: design.md · designed-as-app · contrast: pass (40–41) · mobile: pass (34, 49, 50–57) */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
 @import '../tokens.css';
 
 :root {
   font-family: var(--font-body);
-  color: var(--color-ink);
-  background: var(--color-paper);
+  color: var(--ios-label);
+  background: var(--ios-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
-  background: var(--color-paper);
-  margin: 0;
+  background: var(--ios-bg);
   min-width: 0;
   overflow-x: clip;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 body {
   min-height: 100svh;
-  line-height: 1.5;
+  line-height: 1.47059;
+  letter-spacing: -0.011em;
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow selectable text inside content blocks */
+p, span, h1, h2, h3, h4, code, pre, dl, table {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+  color: inherit;
 }
 
 button,
@@ -39,54 +57,50 @@ button,
 select,
 input {
   min-height: var(--control-height);
-}
-
-button,
-a,
-select,
-input {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button,
 a {
+  cursor: pointer;
   touch-action: manipulation;
-}
-
-a,
-button,
-select {
   transition:
-    background-color var(--dur-short) var(--ease-out),
-    border-color var(--dur-short) var(--ease-out),
-    color var(--dur-short) var(--ease-out),
-    opacity var(--dur-short) var(--ease-out),
-    transform var(--dur-short) var(--ease-out);
+    transform var(--dur-instant) var(--ease-spring),
+    opacity var(--dur-short) var(--ease-ios),
+    background-color var(--dur-short) var(--ease-ios),
+    box-shadow var(--dur-short) var(--ease-ios),
+    border-color var(--dur-short) var(--ease-ios);
 }
 
-button:active,
-a:active {
-  transform: translateY(1px);
+/* Signature iOS spring press feedback */
+button:active:not(:disabled),
+a:active,
+.ios-clickable:active {
+  transform: scale(0.96);
+  opacity: 0.88;
 }
 
 button:disabled,
 input:disabled,
 select:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.42;
+  transform: none !important;
 }
 
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 3px;
+  outline: 2px solid var(--ios-tint);
+  outline-offset: 2px;
 }
 
 h1,
 h2,
 h3,
+h4,
 p {
   overflow-wrap: anywhere;
   min-width: 0;
@@ -97,33 +111,68 @@ h2,
 h3 {
   font-family: var(--font-display);
   font-style: normal;
-  letter-spacing: -0.035em;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: var(--ios-label);
 }
 
 h1 {
-  font-size: clamp(2.35rem, 6vw, 5rem);
-  line-height: 0.98;
-}
-
-h2 {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-size: clamp(2rem, 5vw, 3.75rem);
   line-height: 1.05;
 }
 
+h2 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
+h3 {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.25;
+}
+
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
+  background: var(--ios-accent);
+  color: #ffffff;
 }
 
-@media (pointer: coarse) {
-  a,
-  button,
-  input,
-  select {
-    min-height: 2.75rem;
-  }
+/* iOS Glass Effect helper */
+.ios-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-card);
 }
 
+/* iOS Card Container */
+.ios-card {
+  background: var(--ios-card-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--ios-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-short) var(--ease-spring), box-shadow var(--dur-short) var(--ease-ios);
+}
+
+/* iOS Slim Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ios-border-strong);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ios-secondary-label);
+}
+
+/* Accessibility Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

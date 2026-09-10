@@ -1,39 +1,83 @@
-/* Hallmark · design tokens · modern-minimal · warm paper / ink navy / forest board */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
+/* Apple iOS Design System Tokens · Wood, Glass & Slate */
 :root {
-  --color-paper: oklch(97% 0.015 92);
-  --color-paper-2: oklch(94% 0.022 92);
-  --color-paper-3: oklch(90% 0.03 92);
-  --color-ink: oklch(23% 0.035 255);
-  --color-ink-2: oklch(40% 0.035 255);
-  --color-muted: oklch(52% 0.03 255);
-  --color-rule: oklch(85% 0.025 92);
-  --color-accent: oklch(55% 0.145 42);
-  --color-accent-strong: oklch(50% 0.14 42);
-  --color-accent-ink: oklch(98% 0.01 92);
-  --color-focus: oklch(55% 0.14 190);
-  --color-success: oklch(49% 0.115 150);
-  --color-danger: oklch(52% 0.17 28);
-  --color-warning: oklch(93% 0.075 90);
-  --color-warning-ink: oklch(37% 0.09 65);
-  --color-board-frame: oklch(37% 0.07 145);
-  --color-board-frame-deep: oklch(28% 0.06 145);
-  --color-board-light: oklch(89% 0.11 88);
-  --color-board-mid: oklch(78% 0.13 82);
-  --color-board-dark: oklch(60% 0.12 72);
-  --color-board-line: oklch(40% 0.065 72);
-  --color-stone-black: oklch(20% 0.025 145);
-  --color-stone-black-highlight: oklch(42% 0.045 145);
-  --color-stone-white: oklch(98% 0.015 92);
-  --color-stone-white-shadow: oklch(84% 0.03 92);
-  --color-glow: oklch(86% 0.06 88 / 34%);
-  --color-overlay: oklch(20% 0.04 255 / 65%);
+  /* iOS System Palette - Light */
+  --ios-bg: #f8f9fa;
+  --ios-bg-secondary: #ffffff;
+  --ios-bg-tertiary: #f2f3f7;
+  --ios-grouped-bg: #f2f2f7;
+  --ios-card-bg: rgba(255, 255, 255, 0.82);
+  --ios-card-solid: #ffffff;
+  --ios-border: rgba(0, 0, 0, 0.08);
+  --ios-border-strong: rgba(0, 0, 0, 0.14);
+  --ios-separator: rgba(60, 60, 67, 0.12);
 
-  --font-display: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, serif;
-  --font-body:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --ios-label: #1c1c1e;
+  --ios-secondary-label: #636366;
+  --ios-tertiary-label: #8e8e93;
+  --ios-quaternary-label: #aeaeb2;
 
+  --ios-tint: #007aff;
+  --ios-tint-glow: rgba(0, 122, 255, 0.22);
+  --ios-accent: #c9622d;
+  --ios-accent-glow: rgba(201, 98, 45, 0.24);
+  --ios-success: #34c759;
+  --ios-warning: #ff9500;
+  --ios-danger: #ff3b30;
+  --ios-gold: #d4af37;
+  --ios-gold-glow: rgba(212, 175, 55, 0.45);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.76);
+  --glass-dock-bg: rgba(248, 248, 250, 0.84);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-specular: rgba(255, 255, 255, 0.9);
+  --glass-blur: 24px;
+
+  /* Classic Go Board Materials (Warm Shin-Kaya Wood) */
+  --color-board-surface: #eec988;
+  --color-board-light: #fbe6b8;
+  --color-board-mid: #e9bf7c;
+  --color-board-dark: #cc9950;
+  --color-board-frame: #a86c2e;
+  --color-board-frame-deep: #704414;
+  --color-board-frame-bevel: #d49e58;
+  --color-board-line: rgba(58, 36, 14, 0.85);
+  --color-board-star: #2f1d0b;
+  --color-board-coord: rgba(72, 45, 18, 0.72);
+
+  /* Authentic Stones */
+  --color-stone-black: #121314;
+  --color-stone-black-highlight: #42464d;
+  --color-stone-black-deep: #070708;
+  --color-stone-white: #fafafc;
+  --color-stone-white-highlight: #ffffff;
+  --color-stone-white-shadow: #d1d5dc;
+  --color-stone-white-deep: #b0b6c2;
+
+  /* Backward compatibility semantic aliases */
+  --color-paper: var(--ios-bg);
+  --color-paper-2: var(--ios-bg-secondary);
+  --color-paper-3: var(--ios-bg-tertiary);
+  --color-ink: var(--ios-label);
+  --color-ink-2: var(--ios-secondary-label);
+  --color-muted: var(--ios-tertiary-label);
+  --color-rule: var(--ios-border);
+  --color-accent: var(--ios-accent);
+  --color-accent-strong: #ad4f21;
+  --color-accent-ink: #ffffff;
+  --color-focus: var(--ios-tint);
+  --color-success: var(--ios-success);
+  --color-danger: var(--ios-danger);
+  --color-warning: #fff9e6;
+  --color-warning-ink: #8a6100;
+  --color-overlay: rgba(0, 0, 0, 0.42);
+
+  /* Typography */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Iowan Old Style', Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+
+  /* Spacing */
   --space-3xs: 0.25rem;
   --space-2xs: 0.5rem;
   --space-xs: 0.75rem;
@@ -46,64 +90,131 @@
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
-  --text-md: 1.0625rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.5rem;
-  --text-display: clamp(2.75rem, 7vw, 5.25rem);
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2.25rem;
+  --text-display: clamp(2.4rem, 6vw, 4.5rem);
 
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-short: 180ms;
-  --dur-medium: 280ms;
+  /* Apple Spring & Motion Curves */
+  --ease-spring: cubic-bezier(0.18, 0.89, 0.32, 1.2);
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-ios: cubic-bezier(0.42, 0, 0.58, 1);
+  --dur-instant: 120ms;
+  --dur-short: 200ms;
+  --dur-medium: 320ms;
+  --dur-long: 450ms;
 
-  --control-height: 2.875rem;
-  --page-gutter: clamp(1rem, 4vw, 3.75rem);
-  --content-max: 92rem;
+  --control-height: 2.75rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --content-max: 86rem;
 
-  --radius-sm: 0.55rem;
-  --radius-md: 0.9rem;
+  /* Continuous Squircle Radius */
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
   --radius-lg: 1.35rem;
-  --radius-pill: 999px;
-  --shadow-soft: 0 1rem 2.5rem oklch(25% 0.04 250 / 8%);
-  --shadow-lifted: 0 1.4rem 3.2rem oklch(25% 0.04 250 / 14%);
-  --shadow-stone: 0.12rem 0.16rem 0.1rem oklch(20% 0.03 145 / 35%);
-  --shadow-stone-soft: 0.1rem 0.12rem 0.1rem oklch(20% 0.03 145 / 22%);
-  --shadow-card: 0 0.7rem 2rem oklch(25% 0.04 250 / 7%);
-  --shadow-board-tight: oklch(20% 0.04 145 / 24%);
-  --shadow-board: oklch(20% 0.04 145 / 30%);
+  --radius-xl: 1.75rem;
+  --radius-pill: 9999px;
+
+  /* Layered Shadows */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lifted: 0 16px 36px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-dock: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.22), 0 6px 16px rgba(0, 0, 0, 0.08);
+
+  /* Realistic 3D Stone Shadows */
+  --shadow-stone: 0 4px 6px -1px rgba(18, 19, 20, 0.38), 0 2px 4px -2px rgba(18, 19, 20, 0.25);
+  --shadow-stone-soft: 0 3px 5px -1px rgba(45, 50, 60, 0.22);
+  --shadow-board: 0 22px 45px rgba(60, 36, 12, 0.32), 0 6px 16px rgba(0, 0, 0, 0.12);
+  --shadow-board-tight: rgba(60, 36, 12, 0.2);
+
+  /* Safe-area insets */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
 }
 
+/* iOS Dark Mode */
 :root[data-theme='dark'] {
-  --color-paper: oklch(19% 0.025 255);
-  --color-paper-2: oklch(23% 0.03 255);
-  --color-paper-3: oklch(28% 0.035 255);
-  --color-ink: oklch(94% 0.018 92);
-  --color-ink-2: oklch(80% 0.025 92);
-  --color-muted: oklch(68% 0.025 92);
-  --color-rule: oklch(34% 0.03 255);
-  --color-accent: oklch(70% 0.14 48);
-  --color-accent-strong: oklch(77% 0.12 48);
-  --color-accent-ink: oklch(22% 0.035 255);
-  --color-focus: oklch(76% 0.13 190);
-  --color-warning: oklch(36% 0.08 75);
-  --color-warning-ink: oklch(91% 0.06 88);
-  --color-board-frame: oklch(30% 0.055 145);
-  --color-board-frame-deep: oklch(20% 0.04 145);
-  --color-board-light: oklch(82% 0.1 88);
-  --color-board-mid: oklch(70% 0.11 82);
-  --color-board-dark: oklch(53% 0.1 72);
-  --color-board-line: oklch(32% 0.055 72);
-  --color-stone-black: oklch(13% 0.02 145);
-  --color-stone-black-highlight: oklch(34% 0.04 145);
-  --color-stone-white: oklch(94% 0.012 92);
-  --color-stone-white-shadow: oklch(76% 0.025 92);
-  --color-glow: oklch(42% 0.05 88 / 18%);
-  --color-overlay: oklch(5% 0.02 255 / 74%);
-  --shadow-soft: 0 1rem 2.5rem oklch(0% 0 0 / 20%);
-  --shadow-lifted: 0 1.4rem 3.2rem oklch(0% 0 0 / 30%);
-  --shadow-card: 0 0.7rem 2rem oklch(0% 0 0 / 18%);
-  --shadow-board-tight: oklch(0% 0 0 / 30%);
-  --shadow-board: oklch(0% 0 0 / 42%);
+  --ios-bg: #000000;
+  --ios-bg-secondary: #1c1c1e;
+  --ios-bg-tertiary: #2c2c2e;
+  --ios-grouped-bg: #000000;
+  --ios-card-bg: rgba(28, 28, 30, 0.82);
+  --ios-card-solid: #1c1c1e;
+  --ios-border: rgba(255, 255, 255, 0.1);
+  --ios-border-strong: rgba(255, 255, 255, 0.18);
+  --ios-separator: rgba(84, 84, 88, 0.36);
+
+  --ios-label: #ffffff;
+  --ios-secondary-label: #a1a1a6;
+  --ios-tertiary-label: #6e6e73;
+  --ios-quaternary-label: #48484a;
+
+  --ios-tint: #0a84ff;
+  --ios-tint-glow: rgba(10, 132, 255, 0.35);
+  --ios-accent: #e2753b;
+  --ios-accent-glow: rgba(226, 117, 59, 0.3);
+  --ios-success: #30d158;
+  --ios-warning: #ffd60a;
+  --ios-danger: #ff453a;
+  --ios-gold: #ffd60a;
+  --ios-gold-glow: rgba(255, 214, 10, 0.45);
+
+  --glass-bg: rgba(28, 28, 30, 0.78);
+  --glass-dock-bg: rgba(22, 22, 24, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-specular: rgba(255, 255, 255, 0.2);
+
+  /* Deep Tone Goban for Dark Mode */
+  --color-board-surface: #bf9557;
+  --color-board-light: #d6af71;
+  --color-board-mid: #b88d4d;
+  --color-board-dark: #976f34;
+  --color-board-frame: #794a1d;
+  --color-board-frame-deep: #47290b;
+  --color-board-frame-bevel: #99622d;
+  --color-board-line: rgba(36, 20, 6, 0.92);
+  --color-board-star: #1a0e04;
+  --color-board-coord: rgba(46, 26, 9, 0.85);
+
+  --color-stone-black: #0c0d0e;
+  --color-stone-black-highlight: #373b42;
+  --color-stone-black-deep: #000000;
+  --color-stone-white: #f0f2f5;
+  --color-stone-white-highlight: #ffffff;
+  --color-stone-white-shadow: #b8bec9;
+  --color-stone-white-deep: #8f96a3;
+
+  --color-paper: var(--ios-bg);
+  --color-paper-2: var(--ios-bg-secondary);
+  --color-paper-3: var(--ios-bg-tertiary);
+  --color-ink: var(--ios-label);
+  --color-ink-2: var(--ios-secondary-label);
+  --color-muted: var(--ios-tertiary-label);
+  --color-rule: var(--ios-border);
+  --color-accent: var(--ios-accent);
+  --color-accent-strong: #f08953;
+  --color-accent-ink: #ffffff;
+  --color-focus: var(--ios-tint);
+  --color-warning: #382c0b;
+  --color-warning-ink: #ffe580;
+  --color-overlay: rgba(0, 0, 0, 0.72);
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --shadow-lifted: 0 16px 42px rgba(0, 0, 0, 0.65);
+  --shadow-dock: 0 12px 36px rgba(0, 0, 0, 0.7);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.85);
+
+  --shadow-stone: 0 4px 8px rgba(0, 0, 0, 0.65);
+  --shadow-stone-soft: 0 3px 6px rgba(0, 0, 0, 0.5);
+  --shadow-board: 0 24px 50px rgba(0, 0, 0, 0.75);
+  --shadow-board-tight: rgba(0, 0, 0, 0.5);
 }
