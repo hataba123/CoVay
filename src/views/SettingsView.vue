@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useAudioHaptics } from '@/composables/useAudioHaptics'
 
 const settingsStore = useSettingsStore()
 const { playStoneSound, playTapSound, triggerHaptic } = useAudioHaptics()
+
+const resetNotice = ref<string | null>(null)
 
 function toggleSound() {
   playTapSound()
@@ -33,6 +36,29 @@ function setTheme(theme: 'light' | 'dark') {
   triggerHaptic('light')
   settingsStore.setTheme(theme)
 }
+
+function clearAllSavedGames() {
+  triggerHaptic('error')
+  if (!globalThis.confirm('Bạn có chắc muốn xóa toàn bộ các ván cờ đã lưu trên thiết bị này?')) {
+    return
+  }
+
+  try {
+    // Clear localStorage backup
+    localStorage.removeItem('co-vay-saved-games-backup')
+    // Clear IndexedDB if available
+    if (typeof indexedDB !== 'undefined') {
+      indexedDB.deleteDatabase('co-vay')
+    }
+    resetNotice.value = 'Đã dọn sạch bộ nhớ ván cờ trên thiết bị.'
+    setTimeout(() => {
+      resetNotice.value = null
+    }, 3000)
+    triggerHaptic('medium')
+  } catch {
+    resetNotice.value = 'Không thể xóa dữ liệu bộ nhớ.'
+  }
+}
 </script>
 
 <template>
@@ -43,12 +69,24 @@ function setTheme(theme: 'light' | 'dark') {
       <p class="intro-sub">Cá nhân hóa âm thanh, độ rung và không gian chơi cờ vây.</p>
     </div>
 
+    <!-- Feedback Notice -->
+    <div v-if="resetNotice" class="settings-notice" role="status">
+      <span>✓</span>
+      <p>{{ resetNotice }}</p>
+    </div>
+
     <!-- Section 1: Audio & Haptics (iOS Settings Group) -->
     <div class="settings-group ios-card">
       <span class="group-title">ÂM THANH & PHẢN HỒI XÚC GIÁC</span>
 
       <!-- Row: Sound Toggle -->
-      <div class="setting-row">
+      <div
+        class="setting-row clickable"
+        role="button"
+        tabindex="0"
+        @click="toggleSound"
+        @keydown.enter.prevent="toggleSound"
+      >
         <div class="row-info">
           <div class="icon-bubble sound-icon" aria-hidden="true">
             <span>🔊</span>
@@ -64,7 +102,7 @@ function setTheme(theme: 'light' | 'dark') {
           :class="{ checked: settingsStore.soundEnabled }"
           role="switch"
           :aria-checked="settingsStore.soundEnabled"
-          @click="toggleSound"
+          @click.stop="toggleSound"
         >
           <span class="switch-knob" />
         </button>
@@ -73,7 +111,13 @@ function setTheme(theme: 'light' | 'dark') {
       <div class="row-divider" />
 
       <!-- Row: Haptic Feedback Toggle -->
-      <div class="setting-row">
+      <div
+        class="setting-row clickable"
+        role="button"
+        tabindex="0"
+        @click="toggleHaptics"
+        @keydown.enter.prevent="toggleHaptics"
+      >
         <div class="row-info">
           <div class="icon-bubble haptic-icon" aria-hidden="true">
             <span>📳</span>
@@ -89,7 +133,7 @@ function setTheme(theme: 'light' | 'dark') {
           :class="{ checked: settingsStore.hapticsEnabled }"
           role="switch"
           :aria-checked="settingsStore.hapticsEnabled"
-          @click="toggleHaptics"
+          @click.stop="toggleHaptics"
         >
           <span class="switch-knob" />
         </button>
@@ -127,7 +171,13 @@ function setTheme(theme: 'light' | 'dark') {
       <span class="group-title">BÀN CỜ & TỌA ĐỘ</span>
 
       <!-- Row: Coordinates Toggle -->
-      <div class="setting-row">
+      <div
+        class="setting-row clickable"
+        role="button"
+        tabindex="0"
+        @click="toggleCoords"
+        @keydown.enter.prevent="toggleCoords"
+      >
         <div class="row-info">
           <div class="icon-bubble board-icon" aria-hidden="true">
             <span>📐</span>
@@ -143,7 +193,7 @@ function setTheme(theme: 'light' | 'dark') {
           :class="{ checked: settingsStore.showCoordinates }"
           role="switch"
           :aria-checked="settingsStore.showCoordinates"
-          @click="toggleCoords"
+          @click.stop="toggleCoords"
         >
           <span class="switch-knob" />
         </button>
@@ -160,7 +210,7 @@ function setTheme(theme: 'light' | 'dark') {
             <span>◐</span>
           </div>
           <div class="row-texts">
-            <span class="row-title">Chế độ hiển thị</span>
+            <span class="row-title">Chế độ màu</span>
             <span class="row-desc">Tối ưu cho ban ngày hoặc ban đêm</span>
           </div>
         </div>
@@ -186,14 +236,32 @@ function setTheme(theme: 'light' | 'dark') {
       </div>
     </div>
 
-    <!-- Section 4: App Info & About -->
+    <!-- Section 4: Storage Management -->
+    <div class="settings-group ios-card">
+      <span class="group-title">DỮ LIỆU & BỘ NHỚ</span>
+
+      <div class="setting-row">
+        <div class="row-info">
+          <div class="icon-bubble storage-icon" aria-hidden="true">
+            <span>🗑</span>
+          </div>
+          <div class="row-texts">
+            <span class="row-title">Xóa bộ nhớ ván cờ</span>
+            <span class="row-desc">Đặt lại toàn bộ danh sách các ván đã lưu</span>
+          </div>
+        </div>
+        <button type="button" class="danger-action-btn" @click="clearAllSavedGames">Xóa hết</button>
+      </div>
+    </div>
+
+    <!-- Section 5: App Info & About -->
     <div class="settings-group ios-card">
       <span class="group-title">THÔNG TIN ỨNG DỤNG</span>
       <div class="app-info-content">
         <p><strong>Cờ Vây Web (Zen & Intention)</strong></p>
         <p class="info-text">
-          Chạy thuần bằng Vue 3, Pinia, Web Audio API, KataGo AI và IndexedDB. Hỗ trợ cài đặt như
-          ứng dụng iOS native qua Progressive Web App (PWA).
+          Chạy thuần bằng Vue 3, Pinia, Web Audio API, KataGo AI và IndexedDB/LocalStorage. Hỗ trợ
+          cài đặt như ứng dụng iOS native qua Progressive Web App (PWA).
         </p>
       </div>
     </div>
@@ -234,6 +302,19 @@ h1 {
   color: var(--ios-secondary-label);
 }
 
+.settings-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--ios-success);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
 /* Settings Group */
 .settings-group {
   padding: 1.1rem;
@@ -255,7 +336,25 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
-  padding: 0.4rem 0;
+  padding: 0.45rem 0.25rem;
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.setting-row.clickable {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background-color var(--dur-instant) var(--ease-ios);
+}
+
+.setting-row.clickable:hover {
+  background: rgba(125, 125, 125, 0.06);
+}
+
+.setting-row.clickable:focus-visible {
+  outline: 2px solid var(--ios-tint);
+  outline-offset: 2px;
 }
 
 .row-info {
@@ -291,6 +390,9 @@ h1 {
 .theme-icon {
   background: rgba(255, 45, 85, 0.12);
 }
+.storage-icon {
+  background: rgba(255, 59, 48, 0.12);
+}
 
 .row-texts {
   display: flex;
@@ -313,11 +415,15 @@ h1 {
   background: var(--ios-separator);
 }
 
-/* iOS Authentic Switch */
+/* iOS Switch with strict dimensions to override global button min-height */
 .ios-switch {
   position: relative;
-  width: 3.1rem;
-  height: 1.9rem;
+  width: 3.1rem !important;
+  min-width: 3.1rem !important;
+  max-width: 3.1rem !important;
+  height: 1.9rem !important;
+  min-height: 1.9rem !important;
+  max-height: 1.9rem !important;
   border-radius: var(--radius-pill);
   background: var(--ios-border-strong);
   border: none;
@@ -325,6 +431,17 @@ h1 {
   padding: 2px;
   transition: background-color var(--dur-short) var(--ease-ios);
   flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.ios-switch:active {
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+.ios-switch:focus-visible {
+  outline: 2px solid var(--ios-tint);
+  outline-offset: 2px;
 }
 
 .ios-switch.checked {
@@ -341,6 +458,7 @@ h1 {
   background: #ffffff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
   transition: transform var(--dur-short) var(--ease-spring);
+  pointer-events: none;
 }
 
 .ios-switch.checked .switch-knob {
@@ -352,6 +470,7 @@ h1 {
   width: 9rem;
   accent-color: var(--ios-tint);
   cursor: pointer;
+  min-height: unset !important;
 }
 
 /* Segmented Theme Picker */
@@ -364,7 +483,7 @@ h1 {
 }
 
 .seg-item {
-  padding: 0.45rem 0.95rem;
+  padding: 0.4rem 0.95rem;
   border-radius: var(--radius-pill);
   background: transparent;
   border: none;
@@ -372,12 +491,30 @@ h1 {
   font-weight: 600;
   color: var(--ios-secondary-label);
   transition: all var(--dur-instant) var(--ease-spring);
+  min-height: 2.2rem !important;
 }
 
 .seg-item.active {
   background: var(--ios-card-solid);
   color: var(--ios-label);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Danger Button */
+.danger-action-btn {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--ios-danger);
+  border: 1px solid rgba(255, 59, 48, 0.25);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  min-height: unset !important;
+}
+
+.danger-action-btn:hover {
+  background: var(--ios-danger);
+  color: #ffffff;
 }
 
 /* App Info */

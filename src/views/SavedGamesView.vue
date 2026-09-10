@@ -14,10 +14,12 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 
 async function loadGames(): Promise<void> {
+  loading.value = true
+  error.value = null
   try {
     games.value = await getSavedGames()
-  } catch {
-    error.value = 'Không thể đọc các ván cờ đã lưu.'
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Không thể đọc các ván cờ đã lưu.'
   } finally {
     loading.value = false
   }
@@ -32,15 +34,63 @@ function resume(game: StoredGame): void {
 
 async function remove(game: StoredGame): Promise<void> {
   triggerHaptic('error')
-  if (
-    !globalThis.confirm(
-      `Xóa ván cờ của ${game.state.settings.blackPlayer.name} và ${game.state.settings.whitePlayer.name}?`,
-    )
-  )
+  const blackName = getBlackPlayerName(game)
+  const whiteName = getWhitePlayerName(game)
+
+  if (!globalThis.confirm(`Xóa ván cờ của ${blackName} và ${whiteName}?`)) {
     return
+  }
+
   await deleteSavedGame(game.id)
   games.value = games.value.filter((item) => item.id !== game.id)
+
+  // If deleted game is the active one, clear it
+  if (gameStore.activeGameId === game.id) {
+    gameStore.game = null
+    gameStore.activeGameId = null
+  }
+
   triggerHaptic('medium')
+}
+
+// Safe formatting helpers to prevent crashes on legacy/malformed data
+function getBoardSize(game: StoredGame): number {
+  return game?.state?.settings?.boardSize ?? 19
+}
+
+function getBlackPlayerName(game: StoredGame): string {
+  return game?.state?.settings?.blackPlayer?.name || 'Đen'
+}
+
+function getWhitePlayerName(game: StoredGame): string {
+  return game?.state?.settings?.whitePlayer?.name || 'Trắng'
+}
+
+function getMoveCount(game: StoredGame): number {
+  return game?.state?.moveHistory?.length ?? 0
+}
+
+function getStatusLabel(game: StoredGame): string {
+  const status = game?.state?.status
+  if (status === 'playing') return 'Đang chơi'
+  if (status === 'scoring') return 'Đang đếm điểm'
+  return 'Đã xong'
+}
+
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return ''
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return ''
+    return d.toLocaleDateString('vi-VN', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return ''
+  }
 }
 
 onMounted(() => {
@@ -62,9 +112,10 @@ onMounted(() => {
       <p>Đang tải thư viện ván cờ…</p>
     </div>
 
-    <!-- Error State -->
+    <!-- Error State with Retry Button -->
     <div v-else-if="error" class="state-notice error" role="alert">
       <p>{{ error }}</p>
+      <button class="retry-btn" type="button" @click="loadGames">Thử lại</button>
     </div>
 
     <!-- Empty State -->
@@ -81,54 +132,45 @@ onMounted(() => {
 
     <!-- Saved Games List -->
     <div v-else class="games-grid">
-      <div v-for="game in games" :key="game.id" class="game-card ios-card">
-        <div class="card-main" @click="resume(game)">
+      <div
+        v-for="game in games"
+        :key="game.id"
+        class="game-card ios-card"
+        role="button"
+        tabindex="0"
+        @click="resume(game)"
+        @keydown.enter.prevent="resume(game)"
+      >
+        <div class="card-main">
           <div class="card-top">
-            <span class="size-badge">
-              {{ game.state.settings.boardSize }} × {{ game.state.settings.boardSize }}
-            </span>
-            <span class="date-badge">
-              {{
-                new Date(game.updatedAt).toLocaleDateString('vi-VN', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-              }}
+            <span class="size-badge"> {{ getBoardSize(game) }} × {{ getBoardSize(game) }} </span>
+            <span v-if="game.updatedAt" class="date-badge">
+              {{ formatDate(game.updatedAt) }}
             </span>
           </div>
 
           <div class="players-row">
             <div class="player-entry">
               <span class="stone-icon black" />
-              <strong class="p-name">{{ game.state.settings.blackPlayer.name }}</strong>
+              <strong class="p-name">{{ getBlackPlayerName(game) }}</strong>
             </div>
             <span class="vs-text">vs</span>
             <div class="player-entry">
               <span class="stone-icon white" />
-              <strong class="p-name">{{ game.state.settings.whitePlayer.name }}</strong>
+              <strong class="p-name">{{ getWhitePlayerName(game) }}</strong>
             </div>
           </div>
 
           <div class="card-meta">
-            <span>{{ game.state.moveHistory.length }} nước đi</span>
+            <span>{{ getMoveCount(game) }} nước đi</span>
             <span class="meta-dot">·</span>
-            <span>
-              {{
-                game.state.status === 'playing'
-                  ? 'Đang chơi'
-                  : game.state.status === 'scoring'
-                    ? 'Đang đếm'
-                    : 'Đã xong'
-              }}
-            </span>
+            <span>{{ getStatusLabel(game) }}</span>
           </div>
         </div>
 
-        <div class="card-actions">
+        <div class="card-actions" @click.stop>
           <button class="open-btn" type="button" @click="resume(game)">Tiếp tục ↗</button>
-          <button class="delete-btn" type="button" title="Xóa ván này" @click="remove(game)">
+          <button class="delete-btn" type="button" title="Xóa ván này" @click.stop="remove(game)">
             Xóa
           </button>
         </div>
@@ -182,6 +224,20 @@ h1 {
 
 .state-notice.error {
   color: var(--ios-danger);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.retry-btn {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--ios-tint);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  font-size: var(--text-xs);
 }
 
 .spinner {
@@ -256,6 +312,7 @@ h1 {
   gap: var(--space-md);
   border-radius: var(--radius-lg);
   cursor: pointer;
+  outline: none;
   transition:
     transform var(--dur-instant) var(--ease-spring),
     box-shadow var(--dur-short) var(--ease-ios);
@@ -264,6 +321,11 @@ h1 {
 .game-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-soft);
+}
+
+.game-card:focus-visible {
+  outline: 2px solid var(--ios-tint);
+  outline-offset: 2px;
 }
 
 .card-main {
@@ -371,6 +433,7 @@ h1 {
   font-weight: 700;
   border: none;
   box-shadow: 0 2px 8px var(--ios-tint-glow);
+  min-height: unset !important;
 }
 
 .delete-btn {
@@ -381,6 +444,7 @@ h1 {
   font-size: var(--text-xs);
   font-weight: 600;
   border: 1px solid rgba(255, 59, 48, 0.25);
+  min-height: unset !important;
 }
 
 .delete-btn:hover {

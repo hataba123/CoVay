@@ -50,6 +50,8 @@ export const useGameStore = defineStore('game', {
       this.activeGameId = game.id
       this.createdAt = game.createdAt
       this.message = null
+      this.isBotThinking = false
+      this.isKataGoAnalyzing = false
       this.kataGoAnalysis = null
     },
     loadImportedGame(game: GameState) {
